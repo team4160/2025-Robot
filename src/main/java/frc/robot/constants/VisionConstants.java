@@ -7,26 +7,26 @@
 
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import java.util.Map;
 
 public final class VisionConstants {
 	private static final Map<String, Transform3d> CAMERA_TRANSFORMS =
 			Map.of(
-					"Front", 
+					"frontCamera",
 					new Transform3d(
-						new Translation3d(0.5, 0.0, 0.5),  // x forward, y left, z up
-						new Rotation3d(0, 0, 0)),          // roll, pitch, yaw
-					"Left", 
+							new Translation3d(0.5, 0.0, 0.5), // x forward, y left, z up
+							new Rotation3d(0, 0, 0)), // roll, pitch, yaw
+					"leftCamera",
 					new Transform3d(
-						new Translation3d(0.0, 0.25, 0.5), 
-						new Rotation3d(0, 0, Math.PI/2)),  // 90 degrees left
-					"Right", 
+							new Translation3d(0.0, 0.25, 0.5),
+							new Rotation3d(0, 0, Math.PI / 2)), // 90 degrees left
+					"rightCamera",
 					new Transform3d(
-						new Translation3d(0.0, -0.25, 0.5),
-						new Rotation3d(0, 0, -Math.PI/2))); // 90 degrees right
+							new Translation3d(0.0, -0.25, 0.5),
+							new Rotation3d(0, 0, -Math.PI / 2))); // 90 degrees right
 
 	public static Transform3d getCameraTransform(String cameraName) {
 		return CAMERA_TRANSFORMS.getOrDefault(cameraName, new Transform3d());

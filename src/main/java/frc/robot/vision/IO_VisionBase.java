@@ -7,37 +7,53 @@
 
 package frc.robot.vision;
 
-import frc.robot.constants.VisionConstants;
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public interface IO_VisionBase {
-	@AutoLog
-	public static class VisionInputs implements LoggableInputs {
 
-		public CameraState frontCamera =
-				new CameraState("Front", VisionConstants.getCameraTransform("Front"));
-		public CameraState leftCamera =
-				new CameraState("Left", VisionConstants.getCameraTransform("Left"));
-		public CameraState rightCamera =
-				new CameraState("Right", VisionConstants.getCameraTransform("Right"));
+	class VisionInputs implements LoggableInputs {
+		public CameraState frontCameraState = new CameraState("Front");
+		public CameraState leftCameraState = new CameraState("Left");
+		public CameraState rightCameraState = new CameraState("Right");
 
 		@Override
 		public void toLog(LogTable table) {
-			frontCamera.toLog(table);
-			leftCamera.toLog(table);
-			rightCamera.toLog(table);
+			logCameraState(table, "/FrontCamera", frontCameraState);
+			logCameraState(table, "/LeftCamera", leftCameraState);
+			logCameraState(table, "/RightCamera", rightCameraState);
+		}
+
+		private void logCameraState(LogTable table, String prefix, CameraState state) {
+			table.put(prefix + "/hasTarget", state.getHasTarget());
+			table.put(prefix + "/isConnected", state.getIsConnected());
+			table.put(prefix + "/lastFrameTimestamp", state.getLastFrameTimestamp());
+
+			// Best target details
+			table.put(prefix + "/bestTarget/id", state.getBestTargetId());
+			table.put(prefix + "/bestTarget/yaw", state.getBestTargetYaw());
+			table.put(prefix + "/bestTarget/pitch", state.getBestTargetPitch());
+
+			// Additional target count
+			table.put(prefix + "/targetCount", state.getTrackedTargets().size());
 		}
 
 		@Override
 		public void fromLog(LogTable table) {
-			frontCamera.fromLog(table);
-			leftCamera.fromLog(table);
-			rightCamera.fromLog(table);
+			restoreCameraState(table, "/FrontCamera", frontCameraState);
+			restoreCameraState(table, "/LeftCamera", leftCameraState);
+			restoreCameraState(table, "/RightCamera", rightCameraState);
+		}
+
+		private void restoreCameraState(LogTable table, String prefix, CameraState state) {
+			state.updateState(
+					table.get(prefix + "/isConnected", false),
+					table.get(prefix + "/hasTarget", false),
+					table.get(prefix + "/lastFrameTimestamp", 0.0),
+					null, // Cannot fully restore PhotonTrackedTarget from log
+					null);
 		}
 	}
 
-	/** Updates the inputs with the current values */
-	public void updateInputs(VisionInputs inputs);
+	void updateInputs(VisionInputs inputs);
 }

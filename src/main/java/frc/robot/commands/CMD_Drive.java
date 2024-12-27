@@ -26,6 +26,12 @@ public class CMD_Drive extends Command {
 	}
 
 	@Override
+	public void initialize() {
+		swerve.setOpenLoop(true);
+		swerve.setFieldRelative(true);
+	}
+
+	@Override
 	public void execute() {
 		double xVelocity =
 				-MathUtil.applyDeadband(
@@ -40,5 +46,10 @@ public class CMD_Drive extends Command {
 						controller.getRawAxis(controllerMap.rotationAxis), controllerMap.driveDeadband);
 
 		swerve.driveRobot(xVelocity, yVelocity, rotationVelocity);
+	}
+
+	@Override
+	public boolean isFinished() {
+		return false;
 	}
 }

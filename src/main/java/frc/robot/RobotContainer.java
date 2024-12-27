@@ -17,7 +17,10 @@ import frc.robot.util.InputMap;
 
 public class RobotContainer {
 	private final CommandXboxController driverController;
+
 	private final SUB_Swerve swerve;
+	// private final SUB_Vision vision;
+
 	private final InputMap globalInputMap;
 
 	public RobotContainer() {
@@ -25,6 +28,7 @@ public class RobotContainer {
 		globalInputMap = InputMap.XBOX; // Set the global input map to Xbox Controller
 
 		swerve = new SUB_Swerve(new IO_SwerveReal());
+		// vision = new SUB_Vision(new IO_VisionReal());
 
 		configureDefaultCommands();
 	}

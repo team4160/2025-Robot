@@ -49,15 +49,6 @@ public class SUB_Swerve extends SubsystemBase {
 	}
 
 	/**
-	 * Get the robot's position on the field
-	 *
-	 * @return Current robot pose
-	 */
-	public Pose2d getPose() {
-		return inputs.robotPose;
-	}
-
-	/**
 	 * Set whether the robot drives field-relative
 	 *
 	 * @param enabled True for field-relative, false for robot-relative
