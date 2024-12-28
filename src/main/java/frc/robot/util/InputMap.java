@@ -19,6 +19,12 @@ public enum InputMap {
 			0, // Left/Right Axis
 			3, // Rotation Axis
 			0.1 // Deadband
+			),
+	KEYBOARD(
+			0, // Forward/Back Axis
+			1, // Left/Right Axis
+			2, // Rotation Axis
+			0.1 // Deadband
 			);
 
 	public final int forwardAxis;

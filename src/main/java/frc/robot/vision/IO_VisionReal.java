@@ -7,31 +7,93 @@
 
 package frc.robot.vision;
 
-import frc.robot.constants.VisionConstants;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.Alert;
+import frc.robot.constants.CameraConstants;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 public class IO_VisionReal implements IO_VisionBase {
-	private final CameraInstance frontCamera;
-	private final CameraInstance leftCamera;
-	private final CameraInstance rightCamera;
+	private final AprilTagFieldLayout fieldLayout =
+			AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+	private final Map<CameraConstants.Camera, PhotonCamera> cameras = new HashMap<>();
+	private final Map<CameraConstants.Camera, PhotonPoseEstimator> poseEstimators = new HashMap<>();
+	private final Map<CameraConstants.Camera, Alert> latencyAlerts = new HashMap<>();
+	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 
 	public IO_VisionReal() {
-		frontCamera =
-				new CameraInstance("FrontCamera", VisionConstants.getCameraTransform("FrontCamera"));
-		leftCamera = new CameraInstance("LeftCamera", VisionConstants.getCameraTransform("LeftCamera"));
-		rightCamera =
-				new CameraInstance("RightCamera", VisionConstants.getCameraTransform("RightCamera"));
+		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
+			cameras.put(cam, new PhotonCamera(cam.name));
+
+			Transform3d robotToCam = new Transform3d(cam.translation, cam.rotation);
+
+			PhotonPoseEstimator estimator =
+					new PhotonPoseEstimator(
+							fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
+			estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+			poseEstimators.put(cam, estimator);
+
+			latencyAlerts.put(
+					cam,
+					new Alert(
+							"'" + cam.name + "' Camera experiencing high latency", Alert.AlertType.kWarning));
+		}
 	}
 
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-		// Update camera states
-		frontCamera.update();
-		leftCamera.update();
-		rightCamera.update();
+		PhotonPipelineResult leftResult =
+				cameras.get(CameraConstants.Camera.LEFT_CAM).getLatestResult();
+		PhotonPipelineResult rightResult =
+				cameras.get(CameraConstants.Camera.RIGHT_CAM).getLatestResult();
+		PhotonPipelineResult centerResult =
+				cameras.get(CameraConstants.Camera.CENTER_CAM).getLatestResult();
 
-		// Transfer states to inputs
-		inputs.frontCameraState = frontCamera.getState();
-		inputs.leftCameraState = leftCamera.getState();
-		inputs.rightCameraState = rightCamera.getState();
+		inputs.hasLeftTarget = leftResult.hasTargets();
+		inputs.hasRightTarget = rightResult.hasTargets();
+		inputs.hasCenterTarget = centerResult.hasTargets();
+
+		inputs.leftLatencyMS = -1.0;
+		inputs.rightLatencyMS = -1.0;
+		inputs.centerLatencyMS = -1.0;
+
+		if (inputs.hasLeftTarget) {
+			inputs.leftBestTargetID = leftResult.getBestTarget().getFiducialId();
+		}
+		if (inputs.hasRightTarget) {
+			inputs.rightBestTargetID = rightResult.getBestTarget().getFiducialId();
+		}
+		if (inputs.hasCenterTarget) {
+			inputs.centerBestTargetID = centerResult.getBestTarget().getFiducialId();
+		}
+	}
+
+	@Override
+	public void updatePoseEstimation(Pose2d currentPose) {
+		for (Map.Entry<CameraConstants.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
+			PhotonPoseEstimator estimator = entry.getValue();
+			PhotonCamera camera = cameras.get(entry.getKey());
+
+			estimator.setReferencePose(currentPose);
+			Optional<EstimatedRobotPose> result = estimator.update(camera.getLatestResult());
+			if (result.isPresent()) {
+				lastEstimatedPose = result;
+			}
+		}
+		;
+	}
+
+	@Override
+	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+		return lastEstimatedPose;
 	}
 }

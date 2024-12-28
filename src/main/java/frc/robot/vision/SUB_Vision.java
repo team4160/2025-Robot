@@ -7,50 +7,40 @@
 
 package frc.robot.vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.VisionConstants;
+import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 
-@SuppressWarnings("unused")
 public class SUB_Vision extends SubsystemBase {
-	// Vision IO interface
 	private final IO_VisionBase io;
-
-	// Camera instances
-	private final CameraInstance frontCamera;
-	private final CameraInstance leftCamera;
-	private final CameraInstance rightCamera;
-
-	// Inputs for logging
-	private final IO_VisionBase.VisionInputs inputs = new IO_VisionBase.VisionInputs();
+	private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
 	public SUB_Vision(IO_VisionBase io) {
-
 		this.io = io;
-
-		// Initialize camera instances (same as in IO_VisionReal)
-		frontCamera =
-				new CameraInstance("FrontCamera", VisionConstants.getCameraTransform("FrontCamera"));
-		leftCamera = new CameraInstance("LeftCamera", VisionConstants.getCameraTransform("LeftCamera"));
-		rightCamera =
-				new CameraInstance("RightCamera", VisionConstants.getCameraTransform("RightCamera"));
 	}
 
 	@Override
 	public void periodic() {
-		// Update camera states
+
+		// Update inputs
 		io.updateInputs(inputs);
+
+		// Process inputs
+		Logger.processInputs("Vision", inputs);
 	}
 
-	// Getter methods for camera states
-	public CameraState getFrontCameraState() {
-		return inputs.frontCameraState;
+	// This will be called by the Swerve Drive subsystem to update the estimated pose.
+	public void updatePoseEstimation(Pose2d currentPose) {
+		io.updatePoseEstimation(currentPose);
 	}
 
-	public CameraState getLeftCameraState() {
-		return inputs.leftCameraState;
+	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
+		return io.getEstimatedGlobalPose();
 	}
 
-	public CameraState getRightCameraState() {
-		return inputs.rightCameraState;
+	public boolean hasTargets() {
+		return inputs.hasLeftTarget || inputs.hasRightTarget || inputs.hasCenterTarget;
 	}
 }

@@ -9,20 +9,25 @@ package frc.robot.swerve;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+import swervelib.SwerveController;
+import swervelib.parser.SwerveDriveConfiguration;
 
 public interface IO_SwerveBase {
 	@AutoLog
 	public static class SwerveInputs implements LoggableInputs {
-
 		// Robot pose and orientation
 		public Pose2d robotPose = new Pose2d();
 		public Rotation2d gyroYaw = new Rotation2d();
+		public Rotation2d gyroPitch = new Rotation2d();
 
 		// Module states
 		public SwerveModuleState[] moduleStates = new SwerveModuleState[4];
@@ -40,6 +45,7 @@ public interface IO_SwerveBase {
 		public void toLog(LogTable table) {
 			table.put("RobotPose", robotPose);
 			table.put("GyroYaw", gyroYaw);
+			table.put("GyroPitch", gyroPitch);
 			table.put("ModuleStates", moduleStates);
 			table.put("ModulePositions", modulePositions);
 			table.put("FieldSpeeds", fieldSpeeds);
@@ -52,6 +58,7 @@ public interface IO_SwerveBase {
 		public void fromLog(LogTable table) {
 			robotPose = table.get("RobotPose", robotPose);
 			gyroYaw = table.get("GyroYaw", gyroYaw);
+			gyroPitch = table.get("GyroPitch", gyroPitch);
 			moduleStates = table.get("ModuleStates", moduleStates);
 			modulePositions = table.get("ModulePositions", modulePositions);
 			fieldSpeeds = table.get("FieldSpeeds", fieldSpeeds);
@@ -64,18 +71,56 @@ public interface IO_SwerveBase {
 	/** Updates the set of loggable inputs. */
 	public void updateInputs(SwerveInputs inputs);
 
-	/** Drive the swerve base with X, Y, and Theta velocity components. */
-	public void drive(Pose2d pose);
+	/** Drive the swerve with translation and rotation. */
+	public void drive(Translation2d translation, double rotation, boolean fieldRelative);
+
+	/** Drive with robot-oriented chassis speeds. */
+	public void drive(ChassisSpeeds velocity);
+
+	/** Set chassis speeds directly. */
+	public void setChassisSpeeds(ChassisSpeeds chassisSpeeds);
 
 	/** Reset the odometry to a specific pose. */
 	public void resetOdometry(Pose2d pose);
 
-	/** Update the odometry with latest measurements. */
-	public void updateOdometry();
+	/** Zero the gyro. */
+	public void zeroGyro();
 
-	/** Set the field relative mode. */
-	public void setFieldRelativeDrive(boolean fieldRelative);
+	/** Set motor brake mode. */
+	public void setMotorBrake(boolean brake);
 
-	/** Set the open loop mode. */
-	public void setOpenLoopDrive(boolean openLoop);
+	/** Get the current pose. */
+	public Pose2d getPose();
+
+	/** Get the current heading. */
+	public Rotation2d getHeading();
+
+	/** Get the current pitch. */
+	public Rotation2d getPitch();
+
+	/** Get the field-relative velocity. */
+	public ChassisSpeeds getFieldVelocity();
+
+	/** Get the robot-relative velocity. */
+	public ChassisSpeeds getRobotVelocity();
+
+	/** Get the swerve drive kinematics. */
+	public SwerveDriveKinematics getKinematics();
+
+	/** Get the swerve controller. */
+	public SwerveController getSwerveController();
+
+	/** Get the swerve drive configuration. */
+	public SwerveDriveConfiguration getSwerveDriveConfiguration();
+
+	/** Lock the swerve drive. */
+	public void lock();
+
+	/** Post a trajectory to the field. */
+	public void postTrajectory(Trajectory trajectory);
+
+	/** Setup PathPlanner. */
+	public void setupPathPlanner(SUB_Swerve swerveSubsystem);
+
+	public void addVisionMeasurement(Pose2d pose, double timestamp);
 }

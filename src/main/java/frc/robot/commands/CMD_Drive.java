@@ -8,8 +8,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.InputMap;
 
@@ -27,29 +29,43 @@ public class CMD_Drive extends Command {
 
 	@Override
 	public void initialize() {
-		swerve.setOpenLoop(true);
-		swerve.setFieldRelative(true);
+		// Set motor brake mode when command starts
+		swerve.setMotorBrake(true);
 	}
 
 	@Override
 	public void execute() {
+		// Get joystick inputs with deadband applied
 		double xVelocity =
 				-MathUtil.applyDeadband(
-						controller.getRawAxis(controllerMap.forwardAxis), controllerMap.driveDeadband);
+						controller.getRawAxis(controllerMap.forwardAxis) * RobotConstants.MAX_SPEED,
+						controllerMap.driveDeadband);
 
 		double yVelocity =
 				-MathUtil.applyDeadband(
-						controller.getRawAxis(controllerMap.strafeAxis), controllerMap.driveDeadband);
+						controller.getRawAxis(controllerMap.strafeAxis) * RobotConstants.MAX_SPEED,
+						controllerMap.driveDeadband);
 
 		double rotationVelocity =
 				-MathUtil.applyDeadband(
-						controller.getRawAxis(controllerMap.rotationAxis), controllerMap.driveDeadband);
+						controller.getRawAxis(controllerMap.rotationAxis) * RobotConstants.MAX_SPEED,
+						controllerMap.driveDeadband);
 
-		swerve.driveRobot(xVelocity, yVelocity, rotationVelocity);
+		// Create translation vector from x and y inputs
+		Translation2d translation = new Translation2d(xVelocity, yVelocity);
+
+		// Drive using the swerve subsystem's field-relative drive method
+		swerve.drive(translation, rotationVelocity, true);
 	}
 
 	@Override
 	public boolean isFinished() {
 		return false;
+	}
+
+	@Override
+	public void end(boolean interrupted) {
+		// Stop the robot when the command ends
+		swerve.drive(new Translation2d(), 0, true);
 	}
 }
