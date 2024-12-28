@@ -67,5 +67,7 @@ public class CMD_Drive extends Command {
 	public void end(boolean interrupted) {
 		// Stop the robot when the command ends
 		swerve.drive(new Translation2d(), 0, true);
+		// Disable motor brake mode
+		swerve.setMotorBrake(false);
 	}
 }

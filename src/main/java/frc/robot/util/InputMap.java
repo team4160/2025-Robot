@@ -11,7 +11,7 @@ public enum InputMap {
 	XBOX(
 			4, // Forward/Back Axis
 			3, // Left/Right Axis
-			1, // Rotation Axis
+			0, // Rotation Axis
 			0.1 // Deadband
 			),
 	TX16S_MAIN(

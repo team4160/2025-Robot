@@ -25,7 +25,6 @@ import frc.robot.constants.RobotConstants;
 import java.io.File;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
-import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -205,45 +204,6 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	@Override
 	public void addVisionMeasurement(Pose2d pose, double timestamp) {
 		swerveDrive.addVisionMeasurement(pose, timestamp);
-	}
-
-	/**
-	 * Get the chassis speeds based on controller input of 2 joysticks.
-	 *
-	 * @param xInput X joystick input
-	 * @param yInput Y joystick input
-	 * @param headingX X joystick for heading
-	 * @param headingY Y joystick for heading
-	 * @return ChassisSpeeds for the swerve drive
-	 */
-	public ChassisSpeeds getTargetSpeeds(
-			double xInput, double yInput, double headingX, double headingY) {
-		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-		return swerveDrive.swerveController.getTargetSpeeds(
-				scaledInputs.getX(),
-				scaledInputs.getY(),
-				headingX,
-				headingY,
-				getHeading().getRadians(),
-				RobotConstants.MAX_SPEED);
-	}
-
-	/**
-	 * Get the chassis speeds based on controller input and angle.
-	 *
-	 * @param xInput X joystick input
-	 * @param yInput Y joystick input
-	 * @param angle Target angle
-	 * @return ChassisSpeeds for the swerve drive
-	 */
-	public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
-		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-		return swerveDrive.swerveController.getTargetSpeeds(
-				scaledInputs.getX(),
-				scaledInputs.getY(),
-				angle.getRadians(),
-				getHeading().getRadians(),
-				RobotConstants.MAX_SPEED);
 	}
 
 	/** Update odometry for the swerve drive. */

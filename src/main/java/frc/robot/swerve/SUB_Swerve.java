@@ -29,7 +29,6 @@ import frc.robot.constants.RobotConstants;
 import frc.robot.vision.SUB_Vision;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
-import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 
 public class SUB_Swerve extends SubsystemBase {
@@ -100,24 +99,57 @@ public class SUB_Swerve extends SubsystemBase {
 	}
 
 	/**
-	 * Aim the robot at the speaker.
+	 * Get the distance to the AMP.
 	 *
-	 * @param tolerance Tolerance in degrees.
-	 * @return Command to turn the robot to the speaker.
+	 * @return Distance to AMP in meters.
 	 */
-	public Command aimAtSpeaker(double tolerance) {
-		SwerveController controller = getSwerveController();
-		return run(() -> {
-					ChassisSpeeds speeds =
-							ChassisSpeeds.fromFieldRelativeSpeeds(
-									0,
-									0,
-									controller.headingCalculate(
-											getHeading().getRadians(), getSpeakerYaw().getRadians()),
-									getHeading());
-					drive(speeds);
-				})
-				.until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
+	public double getDistanceToAmp() {
+		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
+		Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+		return getPose().getTranslation().getDistance(ampAprilTagPose.toPose2d().getTranslation());
+	}
+
+	/**
+	 * Get the yaw to aim at the AMP.
+	 *
+	 * @return {@link Rotation2d} of which you need to achieve.
+	 */
+	public Rotation2d getAmpYaw() {
+		int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 6 : 5;
+		Pose3d ampAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
+		Translation2d relativeTrl = ampAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
+		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
+	}
+
+	/**
+	 * Get the yaw to aim at a specific AprilTag ID.
+	 *
+	 * @param tagId The ID of the AprilTag to aim at
+	 * @return {@link Rotation2d} of which you need to achieve, or null if tag not found
+	 */
+	public Rotation2d getAprilTagYaw(int tagId) {
+		var tagPose = aprilTagFieldLayout.getTagPose(tagId);
+		if (tagPose.isEmpty()) {
+			return null;
+		}
+
+		Translation2d relativeTrl = tagPose.get().toPose2d().relativeTo(getPose()).getTranslation();
+		return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(getHeading());
+	}
+
+	/**
+	 * Get the distance to a specific AprilTag ID.
+	 *
+	 * @param tagId The ID of the AprilTag to measure distance to
+	 * @return Distance to tag in meters, or -1 if tag not found
+	 */
+	public double getDistanceToAprilTag(int tagId) {
+		var tagPose = aprilTagFieldLayout.getTagPose(tagId);
+		if (tagPose.isEmpty()) {
+			return -1;
+		}
+
+		return getPose().getTranslation().getDistance(tagPose.get().toPose2d().getTranslation());
 	}
 
 	/**
@@ -199,30 +231,6 @@ public class SUB_Swerve extends SubsystemBase {
 		return getPose().getRotation();
 	}
 
-	public ChassisSpeeds getTargetSpeeds(
-			double xInput, double yInput, double headingX, double headingY) {
-		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-		return getSwerveController()
-				.getTargetSpeeds(
-						scaledInputs.getX(),
-						scaledInputs.getY(),
-						headingX,
-						headingY,
-						getHeading().getRadians(),
-						RobotConstants.MAX_SPEED);
-	}
-
-	public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
-		Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-		return getSwerveController()
-				.getTargetSpeeds(
-						scaledInputs.getX(),
-						scaledInputs.getY(),
-						angle.getRadians(),
-						getHeading().getRadians(),
-						RobotConstants.MAX_SPEED);
-	}
-
 	public ChassisSpeeds getFieldVelocity() {
 		return io.getFieldVelocity();
 	}
@@ -251,7 +259,7 @@ public class SUB_Swerve extends SubsystemBase {
 		return RobotConstants.MAX_SPEED;
 	}
 
-	private double getMaximumAngularVelocity() {
+	public double getMaximumAngularVelocity() {
 		return getSwerveController().config.maxAngularVelocity;
 	}
 }
