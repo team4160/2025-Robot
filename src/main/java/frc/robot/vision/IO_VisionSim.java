@@ -31,6 +31,7 @@ public class IO_VisionSim implements IO_VisionBase {
 		visionSim = new VisionSystemSim("Vision");
 		visionSim.addAprilTags(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField());
 
+		// Set camera properties
 		SimCameraProperties properties = new SimCameraProperties();
 		properties.setCalibration(960, 720, new Rotation2d(Math.toRadians(100)));
 		properties.setCalibError(0.25, 0.08);
@@ -38,6 +39,7 @@ public class IO_VisionSim implements IO_VisionBase {
 		properties.setAvgLatencyMs(35);
 		properties.setLatencyStdDevMs(5);
 
+		// Add cameras
 		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
 			PhotonCamera camera = new PhotonCamera(cam.name);
 			PhotonCameraSim cameraSim = new PhotonCameraSim(camera, properties);
@@ -59,21 +61,18 @@ public class IO_VisionSim implements IO_VisionBase {
 			switch (entry.getKey()) {
 				case LEFT_CAM:
 					inputs.hasLeftTarget = result.hasTargets();
-					inputs.leftLatencyMS = -1.0;
 					if (inputs.hasLeftTarget) {
 						inputs.leftBestTargetID = result.getBestTarget().getFiducialId();
 					}
 					break;
 				case RIGHT_CAM:
 					inputs.hasRightTarget = result.hasTargets();
-					inputs.rightLatencyMS = -1.0;
 					if (inputs.hasRightTarget) {
 						inputs.rightBestTargetID = result.getBestTarget().getFiducialId();
 					}
 					break;
 				case CENTER_CAM:
 					inputs.hasCenterTarget = result.hasTargets();
-					inputs.centerLatencyMS = -1.0;
 					if (inputs.hasCenterTarget) {
 						inputs.centerBestTargetID = result.getBestTarget().getFiducialId();
 					}
