@@ -57,6 +57,8 @@ public class IO_VisionSim implements IO_VisionBase {
 		// Update sim inputs similar to real implementation
 		for (Map.Entry<CameraConstants.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
 			PhotonCameraSim cameraSim = entry.getValue();
+
+			// TODO: Replace getLatestResult with getAllUnreadResults
 			var result = cameraSim.getCamera().getLatestResult();
 
 			switch (entry.getKey()) {
