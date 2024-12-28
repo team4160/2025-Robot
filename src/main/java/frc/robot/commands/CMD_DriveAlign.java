@@ -12,17 +12,17 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.constants.InputConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.swerve.SUB_Swerve;
-import frc.robot.util.InputMap;
 
 public class CMD_DriveAlign extends Command {
 	private final SUB_Swerve swerve;
 	private final CommandXboxController controller;
-	private final InputMap controllerMap;
+	private final InputConstants controllerMap;
 
 	public CMD_DriveAlign(
-			SUB_Swerve swerve, CommandXboxController controller, InputMap controllerMap) {
+			SUB_Swerve swerve, CommandXboxController controller, InputConstants controllerMap) {
 		this.swerve = swerve;
 		this.controller = controller;
 		this.controllerMap = controllerMap;

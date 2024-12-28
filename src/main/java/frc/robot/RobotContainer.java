@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_AimAtAprilTag;
 import frc.robot.commands.CMD_AimAtPose;
 import frc.robot.commands.CMD_DriveAlign;
+import frc.robot.constants.InputConstants;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
-import frc.robot.util.InputMap;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.IO_VisionSim;
 import frc.robot.vision.SUB_Vision;
@@ -28,11 +28,11 @@ public class RobotContainer {
 	private final SUB_Swerve swerve;
 	private final SUB_Vision vision;
 
-	private final InputMap globalInputMap;
+	private final InputConstants globalInputMap;
 
 	public RobotContainer() {
 		driverController = new CommandXboxController(0); // port 0
-		globalInputMap = InputMap.XBOX; // Set the global input map to Xbox Controller
+		globalInputMap = InputConstants.XBOX; // Set the global input map to Xbox Controller
 
 		vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
 

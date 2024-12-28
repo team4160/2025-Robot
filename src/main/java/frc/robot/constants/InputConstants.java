@@ -5,9 +5,9 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.util;
+package frc.robot.constants;
 
-public enum InputMap {
+public enum InputConstants {
 	XBOX(
 			4, // Forward/Back Axis
 			3, // Left/Right Axis
@@ -32,7 +32,7 @@ public enum InputMap {
 	public final int rotationAxis;
 	public final double driveDeadband;
 
-	InputMap(int forwardAxis, int strafeAxis, int rotationAxis, double driveDeadband) {
+	InputConstants(int forwardAxis, int strafeAxis, int rotationAxis, double driveDeadband) {
 		this.forwardAxis = forwardAxis;
 		this.strafeAxis = strafeAxis;
 		this.rotationAxis = rotationAxis;

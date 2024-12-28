@@ -9,91 +9,248 @@ package frc.robot.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.CameraConstants;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
+/**
+ * Real implementation of the vision system using PhotonVision and AprilTags This class handles
+ * multiple cameras to estimate robot position on the field
+ */
 public class IO_VisionReal implements IO_VisionBase {
-	private final AprilTagFieldLayout fieldLayout =
-			AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+	private final AprilTagFieldLayout fieldLayout;
 	private final Map<CameraConstants.Camera, PhotonCamera> cameras = new HashMap<>();
 	private final Map<CameraConstants.Camera, PhotonPoseEstimator> poseEstimators = new HashMap<>();
-	private final Map<CameraConstants.Camera, Alert> latencyAlerts = new HashMap<>();
 	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 
+	// Current results for each camera, updated in updateInputs
+	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
+	private final Map<CameraConstants.Camera, Matrix<N3, N1>> currentStdDevs = new HashMap<>();
+
+	/** Constructor initializes all cameras and their pose estimators */
 	public IO_VisionReal() {
+		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+
 		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
 			cameras.put(cam, new PhotonCamera(cam.name));
+			currentResults.put(cam, new PhotonPipelineResult()); // Empty initial result
+			currentStdDevs.put(cam, cam.singleTagStdDevs);
 
 			Transform3d robotToCam = new Transform3d(cam.translation, cam.rotation);
-
 			PhotonPoseEstimator estimator =
 					new PhotonPoseEstimator(
 							fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCam);
+
 			estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 			poseEstimators.put(cam, estimator);
-
-			latencyAlerts.put(
-					cam,
-					new Alert(
-							"'" + cam.name + "' Camera experiencing high latency", Alert.AlertType.kWarning));
 		}
 	}
 
+	/** Updates vision inputs with the latest target information from each camera */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-		PhotonPipelineResult leftResult =
-				cameras.get(CameraConstants.Camera.LEFT_CAM).getLatestResult();
-		PhotonPipelineResult rightResult =
-				cameras.get(CameraConstants.Camera.RIGHT_CAM).getLatestResult();
-		PhotonPipelineResult centerResult =
-				cameras.get(CameraConstants.Camera.CENTER_CAM).getLatestResult();
+		boolean hasAnyTargets = false;
 
-		inputs.hasLeftTarget = leftResult.hasTargets();
-		inputs.hasRightTarget = rightResult.hasTargets();
-		inputs.hasCenterTarget = centerResult.hasTargets();
+		// Update all camera results first
+		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
+			CameraConstants.Camera cam = entry.getKey();
+			PhotonCamera camera = entry.getValue();
 
-		inputs.leftLatencyMS = -1.0;
-		inputs.rightLatencyMS = -1.0;
-		inputs.centerLatencyMS = -1.0;
-
-		if (inputs.hasLeftTarget) {
-			inputs.leftBestTargetID = leftResult.getBestTarget().getFiducialId();
+			List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+			if (!results.isEmpty()) {
+				// Get the most recent result
+				results.sort((a, b) -> Double.compare(b.getTimestampSeconds(), a.getTimestampSeconds()));
+				currentResults.put(cam, results.get(0));
+			}
 		}
-		if (inputs.hasRightTarget) {
-			inputs.rightBestTargetID = rightResult.getBestTarget().getFiducialId();
-		}
-		if (inputs.hasCenterTarget) {
-			inputs.centerBestTargetID = centerResult.getBestTarget().getFiducialId();
+
+		// Process the results for each camera
+		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
+			CameraConstants.Camera cam = entry.getKey();
+			PhotonPipelineResult result = currentResults.get(cam);
+
+			if (result.hasTargets()) {
+				hasAnyTargets = true;
+				PhotonTrackedTarget bestTarget = result.getBestTarget();
+
+				switch (cam) {
+					case LEFT_CAM:
+						inputs.hasLeftTarget = true;
+						inputs.leftBestTargetID = bestTarget.getFiducialId();
+						break;
+					case RIGHT_CAM:
+						inputs.hasRightTarget = true;
+						inputs.rightBestTargetID = bestTarget.getFiducialId();
+						break;
+					case CENTER_CAM:
+						inputs.hasCenterTarget = true;
+						inputs.centerBestTargetID = bestTarget.getFiducialId();
+						break;
+				}
+			}
 		}
 	}
 
-	@Override
+	/** Updates robot pose estimation using data from all cameras */
 	public void updatePoseEstimation(Pose2d currentPose) {
-		for (Map.Entry<CameraConstants.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
-			PhotonPoseEstimator estimator = entry.getValue();
-			PhotonCamera camera = cameras.get(entry.getKey());
+		Map<CameraConstants.Camera, EstimatedRobotPose> cameraEstimates = new HashMap<>();
 
+		for (Map.Entry<CameraConstants.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {
+			CameraConstants.Camera cam = entry.getKey();
+			PhotonPoseEstimator estimator = entry.getValue();
+			PhotonPipelineResult result = currentResults.get(cam);
+
+			if (!result.hasTargets()) {
+				continue;
+			}
+
+			// Filter out unreliable single-tag measurements
+			if (result.getTargets().size() == 1) {
+				PhotonTrackedTarget target = result.getBestTarget();
+				if (target.getPoseAmbiguity() > CameraConstants.MAXIMUM_AMBIGUITY) {
+					Logger.recordOutput(
+							"Vision/" + cam.name + "/RejectedAmbiguity", target.getPoseAmbiguity());
+					continue;
+				}
+			}
+
+			// Set reference pose to current robot pose
 			estimator.setReferencePose(currentPose);
-			Optional<EstimatedRobotPose> result = estimator.update(camera.getLatestResult());
-			if (result.isPresent()) {
-				lastEstimatedPose = result;
+
+			// Update estimator
+			Optional<EstimatedRobotPose> poseResult = estimator.update(result);
+
+			// If estimation is successful record output, update estimates, and update stdDevs
+			if (poseResult.isPresent()) {
+				EstimatedRobotPose estimate = poseResult.get();
+				updateEstimationStdDevs(cam, poseResult, result.getTargets());
+				cameraEstimates.put(cam, estimate);
+
+				Logger.recordOutput("Vision/" + cam.name + "/EstimatedPose", estimate.estimatedPose);
+				Logger.recordOutput("Vision/" + cam.name + "/EstimateTimestampSeconds", estimate.timestampSeconds);
+				Logger.recordOutput("Vision/" + cam.name + "/EstimateTagCount", estimate.targetsUsed.size());
 			}
 		}
-		;
+
+		if (!cameraEstimates.isEmpty()) {
+			EstimatedRobotPose combinedPose = combineEstimates(cameraEstimates);
+			lastEstimatedPose = Optional.of(combinedPose);
+			Logger.recordOutput("Vision/CombinedEstimatedPose", combinedPose.estimatedPose);
+		}
+	}
+
+	private EstimatedRobotPose combineEstimates(
+			Map<CameraConstants.Camera, EstimatedRobotPose> estimates) {
+		double weightedX = 0;
+		double weightedY = 0;
+		double weightedRot = 0;
+		double totalWeightX = 0;
+		double totalWeightY = 0;
+		double totalWeightRot = 0;
+
+		EstimatedRobotPose firstEstimate = estimates.values().iterator().next();
+
+		for (Map.Entry<CameraConstants.Camera, EstimatedRobotPose> entry : estimates.entrySet()) {
+			CameraConstants.Camera cam = entry.getKey();
+			EstimatedRobotPose estimate = entry.getValue();
+			Matrix<N3, N1> stdDevs = currentStdDevs.get(cam);
+
+			double weightX = 1.0 / (stdDevs.get(0, 0) * stdDevs.get(0, 0));
+			double weightY = 1.0 / (stdDevs.get(1, 0) * stdDevs.get(1, 0));
+			double weightRot = 1.0 / (stdDevs.get(2, 0) * stdDevs.get(2, 0));
+
+			Pose3d pose = estimate.estimatedPose;
+			weightedX += pose.getX() * weightX;
+			weightedY += pose.getY() * weightY;
+			weightedRot += pose.getRotation().getZ() * weightRot;
+
+			totalWeightX += weightX;
+			totalWeightY += weightY;
+			totalWeightRot += weightRot;
+		}
+
+		double finalX = weightedX / totalWeightX;
+		double finalY = weightedY / totalWeightY;
+		double finalRot = weightedRot / totalWeightRot;
+
+		Pose3d combinedPose =
+				new Pose3d(new Translation3d(finalX, finalY, 0), new Rotation3d(0, 0, finalRot));
+
+		return new EstimatedRobotPose(
+				combinedPose,
+				firstEstimate.timestampSeconds,
+				firstEstimate.targetsUsed,
+				firstEstimate.strategy);
 	}
 
 	@Override
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
 		return lastEstimatedPose;
+	}
+
+	private void updateEstimationStdDevs(
+			CameraConstants.Camera camera,
+			Optional<EstimatedRobotPose> estimatedPose,
+			List<PhotonTrackedTarget> targets) {
+
+		if (estimatedPose.isEmpty()) {
+			currentStdDevs.put(camera, camera.singleTagStdDevs);
+			return;
+		}
+
+		Matrix<N3, N1> estStdDevs = camera.singleTagStdDevs;
+		int numTags = 0;
+		double avgDist = 0;
+
+		for (PhotonTrackedTarget target : targets) {
+			Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
+			if (tagPose.isEmpty()) {
+				continue;
+			}
+			numTags++;
+			avgDist +=
+					tagPose
+							.get()
+							.toPose2d()
+							.getTranslation()
+							.getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
+		}
+
+		if (numTags == 0) {
+			currentStdDevs.put(camera, camera.singleTagStdDevs);
+			return;
+		}
+
+		avgDist /= numTags;
+
+		if (numTags > 1) {
+			estStdDevs = camera.multiTagStdDevs;
+		}
+
+		if (numTags == 1 && avgDist > 4) {
+			estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+		} else {
+			estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+		}
+
+		currentStdDevs.put(camera, estStdDevs);
 	}
 }
