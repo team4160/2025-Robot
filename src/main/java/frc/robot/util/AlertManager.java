@@ -17,13 +17,9 @@ public class AlertManager {
 
 	public enum Alerts {
 		SWERVE_CONFIG("Swerve Configuration Not Found!", AlertType.kError),
-		APRILTAG_FIELD_LOAD_ERROR("Failed to load AprilTag field layout!", AlertType.kError),
-		CAMERA_FAILED_CREATION("A photon camera has been created as null!", AlertType.kWarning),
 		CRITICAL_BATTERY_ON_START("Critical Battery on Start of Match", AlertType.kError),
 		CRITICAL_BATTERY_ON_END("Critical Battery on End of Match", AlertType.kError),
-		AUTOBUILDER_ERROR("PathPlanner AutoBuilder Error", AlertType.kError),
-	// Add other alert types as needed
-	;
+		AUTOBUILDER_ERROR("PathPlanner AutoBuilder Error", AlertType.kError);
 
 		private final String message;
 		private final AlertType type;

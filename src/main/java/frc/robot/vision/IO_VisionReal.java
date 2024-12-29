@@ -67,8 +67,6 @@ public class IO_VisionReal implements IO_VisionBase {
 	/** Updates vision inputs with the latest target information from each camera */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-		boolean hasAnyTargets = false;
-
 		// Update all camera results first
 		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
 			CameraConstants.Camera cam = entry.getKey();
@@ -88,7 +86,6 @@ public class IO_VisionReal implements IO_VisionBase {
 			PhotonPipelineResult result = currentResults.get(cam);
 
 			if (result.hasTargets()) {
-				hasAnyTargets = true;
 				PhotonTrackedTarget bestTarget = result.getBestTarget();
 
 				switch (cam) {
