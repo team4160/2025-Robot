@@ -1,0 +1,139 @@
+{
+  "hubs": [
+    {
+      "x": 458,
+      "y": 278,
+      "width": 1280,
+      "height": 689,
+      "state": {
+        "sidebar": {
+          "width": 434,
+          "expanded": [
+            "/SmartDashboard/Alerts",
+            "/AdvantageKit/Swerve/RobotPose/translation",
+            "/AdvantageKit/RealOutputs",
+            "/SmartDashboard/VisionSystemSim-Vision/Sim Field",
+            "/AdvantageKit",
+            "/AdvantageKit/Swerve",
+            "/AdvantageKit/RealOutputs/Arm",
+            "/AdvantageKit/RealOutputs/Visual",
+            "/SmartDashboard",
+            "/SmartDashboard/ArmMechanism"
+          ]
+        },
+        "tabs": {
+          "selected": 1,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "7vk9a9vdkgssovm0xjuk8vwnz76cmq9a",
+              "renderer": "#/",
+              "controlsHeight": 0
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "trajectory",
+                    "logKey": "NT:/PathPlanner/activePath",
+                    "logType": "Pose2d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff00ff",
+                      "size": "bold"
+                    }
+                  },
+                  {
+                    "type": "cone",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/Vision/TagPoses",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff00ff",
+                      "position": "center"
+                    }
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/AdvantageKit/Swerve/RobotPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "Maestro"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "NT:/AdvantageKit/RealOutputs/ArmSimulationPose",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {}
+                  }
+                ],
+                "game": "2024 Field",
+                "origin": "blue"
+              },
+              "controllerUUID": "1cqod52fxy7khrknw4mfszc6zaii8qxe",
+              "renderer": {
+                "cameraIndex": -2,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -1.1462721406181227,
+                  2.4045557981268253,
+                  4.995897944236296
+                ],
+                "cameraTarget": [
+                  -1.3441299279671717,
+                  -0.9079991788335193,
+                  -0.4254976451375923
+                ]
+              },
+              "controlsHeight": 255
+            },
+            {
+              "type": 2,
+              "title": "2D Field ",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/AdvantageKit/Swerve/RobotPose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {}
+                  }
+                ],
+                "game": "2024 Field",
+                "bumpers": "red",
+                "origin": "blue",
+                "orientation": 0,
+                "size": 30
+              },
+              "controllerUUID": "q1cmiwefe85nau1r37gl79z7d29pu72r",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 4,
+              "title": "AprilTagID",
+              "controller": [
+                "NT:/AdvantageKit/Vision/LeftBestTargetID",
+                "NT:/AdvantageKit/Vision/CenterBestTargetID",
+                "NT:/AdvantageKit/Vision/RightBestTargetID"
+              ],
+              "controllerUUID": "u40c7mqn10midrkj66vkslqbudmwpfbs",
+              "renderer": null,
+              "controlsHeight": 0
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "4.0.0-beta-4"
+}

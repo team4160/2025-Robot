@@ -46,7 +46,7 @@ public class Robot extends LoggedRobot {
 		Logger.recordMetadata("ProjectName", "SwerveDrive2025");
 		Logger.recordMetadata("Robot Mode", RobotConstants.ROBOT_MODE.toString());
 		Logger.recordMetadata("Git Branch", BuildConstants.GIT_BRANCH);
-		Logger.recordMetadata("Authors",  "(WindingMotor) Isaac S");
+		Logger.recordMetadata("Authors", "(WindingMotor) Isaac S");
 
 		switch (RobotConstants.ROBOT_MODE) {
 			case REAL:
