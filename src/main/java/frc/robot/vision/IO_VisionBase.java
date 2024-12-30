@@ -8,6 +8,7 @@
 package frc.robot.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import java.util.Optional;
 import org.littletonrobotics.junction.AutoLog;
 import org.photonvision.EstimatedRobotPose;
@@ -28,6 +29,8 @@ public interface IO_VisionBase {
 		public double leftBestTargetID = -1.0;
 		public double rightBestTargetID = -1.0;
 		public double centerBestTargetID = -1.0;
+
+		public Pose3d[] visibleTagPoses = new Pose3d[0];
 	}
 
 	public void updateInputs(VisionInputs inputs);

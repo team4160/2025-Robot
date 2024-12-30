@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.constants.CameraConstants;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,8 @@ public class IO_VisionReal implements IO_VisionBase {
 	/** Updates vision inputs with the latest target information from each camera */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
+		List<Pose3d> visibleTagPoses = new ArrayList<>();
+
 		// Update all camera results first
 		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
 			CameraConstants.Camera cam = entry.getKey();
@@ -88,6 +91,17 @@ public class IO_VisionReal implements IO_VisionBase {
 			if (result.hasTargets()) {
 				PhotonTrackedTarget bestTarget = result.getBestTarget();
 
+				// Collect poses of all visible tags
+				for (PhotonTrackedTarget target : result.getTargets()) {
+					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
+					tagPose.ifPresent(
+							pose -> {
+								if (!visibleTagPoses.contains(pose)) {
+									visibleTagPoses.add(pose);
+								}
+							});
+				}
+
 				switch (cam) {
 					case LEFT_CAM:
 						inputs.hasLeftTarget = true;
@@ -104,6 +118,9 @@ public class IO_VisionReal implements IO_VisionBase {
 				}
 			}
 		}
+
+		// Update inputs with visible tag poses
+		inputs.visibleTagPoses = visibleTagPoses.toArray(new Pose3d[0]);
 	}
 
 	/** Updates robot pose estimation using data from all cameras */

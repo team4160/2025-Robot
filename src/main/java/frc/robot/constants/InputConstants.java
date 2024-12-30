@@ -12,7 +12,7 @@ public enum InputConstants {
 			4, // Forward/Back Axis
 			3, // Left/Right Axis
 			0, // Rotation Axis
-			0.1 // Deadband
+			0.2 // Deadband
 			),
 	TX16S_MAIN(
 			1, // Forward/Back Axis

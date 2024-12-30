@@ -15,7 +15,9 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -23,6 +25,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.constants.RobotConstants;
 import java.io.File;
+import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveDriveConfiguration;
@@ -66,6 +69,28 @@ public class IO_SwerveReal implements IO_SwerveBase {
 		inputs.robotSpeeds = swerveDrive.getRobotVelocity();
 		inputs.isFieldRelative = this.inputs.isFieldRelative;
 		inputs.isOpenLoop = this.inputs.isOpenLoop;
+
+		/*
+		 * Before offset applied in AScope
+		Logger.recordOutput(
+				"ArmSimulationPose",
+				new Pose3d(
+						0.25, // x offset from robot center
+						-0.2, // y offset from robot center
+						0.31, // z height
+						new Rotation3d(
+								Math.toRadians(270), Math.toRadians(180), Math.toRadians(90)) // arm rotation
+						));
+		 */
+
+		Logger.recordOutput(
+				"ArmSimulationPose",
+				new Pose3d(
+						0.0, // x offset from robot center
+						-0.0, // y offset from robot center
+						0.0, // z height
+						new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)) // arm rotation
+						));
 	}
 
 	@Override
