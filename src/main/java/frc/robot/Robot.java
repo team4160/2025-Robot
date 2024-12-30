@@ -16,9 +16,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.BuildConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.util.AlertManager;
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
@@ -41,27 +43,32 @@ public class Robot extends LoggedRobot {
 		Logger.recordMetadata("Maven Name", BuildConstants.MAVEN_NAME);
 		Logger.recordMetadata("Git SHA", BuildConstants.GIT_SHA);
 		Logger.recordMetadata("Build Date", BuildConstants.BUILD_DATE);
+		Logger.recordMetadata("ProjectName", "SwerveDrive2025");
+		Logger.recordMetadata("Robot Mode", RobotConstants.ROBOT_MODE.toString());
+		Logger.recordMetadata("Git Branch", BuildConstants.GIT_BRANCH);
+		Logger.recordMetadata("Authors",  "(WindingMotor) Isaac S");
 
-		Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
+		switch (RobotConstants.ROBOT_MODE) {
+			case REAL:
+				Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+				Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+				new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+				break;
+			case SIM:
+				setUseTiming(false); // Run as fast as possible
+				Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+				break;
+			case REPLAY:
+				// Replay Stuff
+				String logPath =
+						LogFileUtil
+								.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+				Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
 
-		if (isReal()) { // Real robot
-			Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-			new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-		} else { // Simulation
-			setUseTiming(false); // Run as fast as possible
-			Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-
-			/* Replay Stuff
-			String logPath =
-					LogFileUtil
-							.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-			Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-
-			Logger.addDataReceiver(
-					new WPILOGWriter(
-							LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-			*/
+				Logger.addDataReceiver(
+						new WPILOGWriter(
+								LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+				break;
 		}
 
 		Logger.start();

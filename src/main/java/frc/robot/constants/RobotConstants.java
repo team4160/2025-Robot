@@ -13,6 +13,14 @@ import swervelib.math.Matter;
 
 public final class RobotConstants {
 
+	public enum RobotMode {
+		REAL, // Physical robot hardware
+		SIM, // Simulation mode
+		REPLAY // Replay mode for log analysis
+	}
+
+	public static final RobotMode ROBOT_MODE = RobotMode.SIM;
+
 	public static final double BATTERY_VOLTAGE_CRITICAL = 11.5; // Volts
 	public static final double BATTERY_VOLTAGE_WARNING = 12.0; // Volts
 

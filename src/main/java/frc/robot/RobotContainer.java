@@ -47,6 +47,9 @@ public class RobotContainer {
 		// swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap)); Drive
 		// normal
 		// swerve.setDefaultCommand(new CMD_AimAtSpeaker(swerve, 0.1)); Aim at speaker
+
+		// swerve.setDefaultCommand(swerve.driveToPose(new Pose2d(5.0, 5.0, new Rotation2d())));
+
 		swerve.setDefaultCommand(
 				new CMD_DriveAlign(swerve, driverController, globalInputMap)); // Drive and aim at speaker
 
