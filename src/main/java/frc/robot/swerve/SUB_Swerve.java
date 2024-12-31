@@ -16,6 +16,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.vision.SUB_Vision;
 import org.littletonrobotics.junction.Logger;
@@ -67,6 +69,24 @@ public class SUB_Swerve extends SubsystemBase {
 			Logger.recordOutput(
 					"Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
 		}
+
+		// Convert Pose2d to Pose3d for camera position transformation
+		Pose3d robotPose3d = new Pose3d(inputs.robotPose);
+
+		// Transform camera positions to global coordinate system
+		Pose3d[] globalCameraPositions = new Pose3d[CameraConstants.CAMERA_POSITIONS.length];
+		for (int i = 0; i < CameraConstants.CAMERA_POSITIONS.length; i++) {
+			globalCameraPositions[i] =
+					robotPose3d.transformBy(
+							new Transform3d(
+									CameraConstants.CAMERA_POSITIONS[i].getTranslation(),
+									CameraConstants.CAMERA_POSITIONS[i].getRotation()));
+		}
+
+		// Record camera positions in global coordinate system
+		// In AScope set camera positions to cone object, and the pointy end is where the camera is looking at
+		// If you want to calibrate the postion set camera positions to transform object instead
+		Logger.recordOutput("CameraPositions", globalCameraPositions);
 
 		// Update inputs
 		io.updateInputs(inputs);

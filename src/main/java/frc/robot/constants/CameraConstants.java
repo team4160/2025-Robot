@@ -9,6 +9,7 @@ package frc.robot.constants;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
@@ -37,7 +38,7 @@ public final class CameraConstants {
 				VecBuilder.fill(0.5, 0.5, 1)),
 		CENTER_CAM(
 				"center",
-				new Rotation3d(0, Units.degreesToRadians(18), 0),
+				new Rotation3d(0, Units.degreesToRadians(-145), 0),
 				new Translation3d(
 						Units.inchesToMeters(-4.628),
 						Units.inchesToMeters(-10.687),
@@ -64,4 +65,10 @@ public final class CameraConstants {
 			this.multiTagStdDevs = multiTagStdDevs;
 		}
 	}
+
+	public static final Pose3d[] CAMERA_POSITIONS = {
+		new Pose3d(Camera.LEFT_CAM.translation, Camera.LEFT_CAM.rotation),
+		new Pose3d(Camera.RIGHT_CAM.translation, Camera.RIGHT_CAM.rotation),
+		new Pose3d(Camera.CENTER_CAM.translation, Camera.CENTER_CAM.rotation)
+	};
 }
