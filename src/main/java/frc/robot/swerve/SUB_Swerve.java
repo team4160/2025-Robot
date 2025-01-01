@@ -84,7 +84,8 @@ public class SUB_Swerve extends SubsystemBase {
 		}
 
 		// Record camera positions in global coordinate system
-		// In AScope set camera positions to cone object, and the pointy end is where the camera is looking at
+		// In AScope set camera positions to cone object, and the pointy end is where the camera is
+		// looking at
 		// If you want to calibrate the postion set camera positions to transform object instead
 		Logger.recordOutput("CameraPositions", globalCameraPositions);
 

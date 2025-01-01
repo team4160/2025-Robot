@@ -19,7 +19,7 @@ public class AlertManager {
 		SWERVE_CONFIG("Swerve Configuration Not Found!", AlertType.kError),
 		CRITICAL_BATTERY_ON_START("Critical Battery on Start of Match", AlertType.kError),
 		CRITICAL_BATTERY_ON_END("Critical Battery on End of Match", AlertType.kError),
-		AUTOBUILDER_ERROR("PathPlanner AutoBuilder Error", AlertType.kError);
+		AUTOBUILDER("PathPlanner AutoBuilder Error", AlertType.kError);
 
 		private final String message;
 		private final AlertType type;
