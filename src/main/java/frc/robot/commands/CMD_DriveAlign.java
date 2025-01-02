@@ -21,6 +21,11 @@ public class CMD_DriveAlign extends Command {
 	private final CommandXboxController controller;
 	private final InputConstants controllerMap;
 
+	// Values > 1 increase sensitivity
+	// Values closer to 1 maintain original sensitivity
+	// Values < 1 decrease sensitivity
+	private final double ROTATION_SENSITIVITY = 0.5;
+
 	public CMD_DriveAlign(
 			SUB_Swerve swerve, CommandXboxController controller, InputConstants controllerMap) {
 		this.swerve = swerve;
@@ -36,6 +41,7 @@ public class CMD_DriveAlign extends Command {
 
 	@Override
 	public void execute() {
+
 		// Get joystick inputs with deadband applied
 		double xVelocity =
 				-MathUtil.applyDeadband(
@@ -47,9 +53,20 @@ public class CMD_DriveAlign extends Command {
 						controller.getRawAxis(controllerMap.strafeAxis) * RobotConstants.MAX_SPEED,
 						controllerMap.driveDeadband);
 
-		double rotationVelocity;
+		// Apply forward and strafe inversions from InputConstants
+		xVelocity *= controllerMap.forwardInverted ? -1 : 1;
+		yVelocity *= controllerMap.strafeInverted ? -1 : 1;
 
 		var alliance = DriverStation.getAlliance();
+
+		// Additional alliance-based inversions
+		if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue) {
+			// Invert x and y velocities for blue alliance
+			xVelocity *= -1;
+			yVelocity *= -1;
+		}
+
+		double rotationVelocity;
 
 		// Check for alignment controls
 		if (controller.leftBumper().getAsBoolean() && alliance.isPresent()) {
@@ -72,6 +89,10 @@ public class CMD_DriveAlign extends Command {
 							controller.getRawAxis(controllerMap.rotationAxis)
 									* swerve.getMaximumAngularVelocity(),
 							controllerMap.driveDeadband);
+
+			// Apply rotation inversion and sensitivity
+			rotationVelocity *= controllerMap.rotationInverted ? -1 : 1;
+			rotationVelocity *= ROTATION_SENSITIVITY;
 		}
 
 		// Create field-relative ChassisSpeeds

@@ -32,7 +32,7 @@ public class RobotContainer {
 
 	public RobotContainer() {
 		driverController = new CommandXboxController(0); // port 0
-		globalInputMap = InputConstants.XBOX; // Set the global input map to Xbox Controller
+		globalInputMap = InputConstants.TX16S_MAIN; // Set the global input map to Xbox Controller
 
 		vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
 
