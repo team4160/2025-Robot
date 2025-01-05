@@ -20,10 +20,13 @@ import frc.robot.swerve.SUB_Swerve;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.IO_VisionSim;
 import frc.robot.vision.SUB_Vision;
+import frc.robot.webserver.WebServer;
 import java.io.File;
 
 public class RobotContainer {
 	private final CommandXboxController driverController;
+
+	private final WebServer webServer;
 
 	private final SUB_Swerve swerve;
 	private final SUB_Vision vision;
@@ -31,6 +34,9 @@ public class RobotContainer {
 	private final InputConstants globalInputMap;
 
 	public RobotContainer() {
+
+		webServer = new WebServer();
+
 		driverController = new CommandXboxController(0); // port 0
 		globalInputMap = InputConstants.TX16S_MAIN; // Set the global input map to Xbox Controller
 
@@ -41,6 +47,12 @@ public class RobotContainer {
 						vision, new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
 		configureDefaultCommands();
+		configureWebserverCommands();
+	}
+
+	private void configureWebserverCommands() {
+		webServer.registerCommand("T1", new CMD_AimAtAprilTag(swerve, 4, 0.1));
+		webServer.registerCommand("T2", new CMD_AimAtAprilTag(swerve, 12, 0.1));
 	}
 
 	private void configureDefaultCommands() {
@@ -61,6 +73,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("4P_Middle");
+		return swerve.getAutonomousCommand("Test");
 	}
 }

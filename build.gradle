@@ -175,4 +175,4 @@ task updateVendordeps(type: Exec) {
         println errorOutput
     }
 }
-tasks.build.dependsOn updateVendordeps
+//tasks.build.dependsOn updateVendordeps
