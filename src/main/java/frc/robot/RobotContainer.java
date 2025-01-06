@@ -7,9 +7,11 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_AimAtAprilTag;
 import frc.robot.commands.CMD_AimAtPose;
@@ -48,19 +50,10 @@ public class RobotContainer {
 
 		configureDefaultCommands();
 		configureWebserverCommands();
-	}
-
-	private void configureWebserverCommands() {
-		webServer.registerCommand("T1", new CMD_AimAtAprilTag(swerve, 4, 0.1));
-		webServer.registerCommand("T2", new CMD_AimAtAprilTag(swerve, 12, 0.1));
+		configurePathPlannerCommands();
 	}
 
 	private void configureDefaultCommands() {
-		// swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap)); Drive
-		// normal
-		// swerve.setDefaultCommand(new CMD_AimAtSpeaker(swerve, 0.1)); Aim at speaker
-
-		// swerve.setDefaultCommand(swerve.driveToPose(new Pose2d(5.0, 5.0, new Rotation2d())));
 
 		swerve.setDefaultCommand(
 				new CMD_DriveAlign(swerve, driverController, globalInputMap)); // Drive and aim at speaker
@@ -70,6 +63,16 @@ public class RobotContainer {
 
 		// Aim at tag 16 for testing
 		driverController.b().onTrue(new CMD_AimAtAprilTag(swerve, 16, 0.1));
+	}
+
+	private void configureWebserverCommands() {
+		webServer.registerCommand("T1", new CMD_AimAtAprilTag(swerve, 4, 0.1));
+		webServer.registerCommand("T2", new CMD_AimAtAprilTag(swerve, 12, 0.1));
+	}
+
+	private void configurePathPlannerCommands() {
+
+		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Hi"));
 	}
 
 	public Command getAutonomousCommand() {
