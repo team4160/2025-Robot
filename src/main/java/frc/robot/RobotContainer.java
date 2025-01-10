@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_AimAtAprilTag;
 import frc.robot.commands.CMD_AimAtPose;
 import frc.robot.commands.CMD_DriveAlign;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.InputConstants;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
@@ -66,8 +67,11 @@ public class RobotContainer {
 	}
 
 	private void configureWebserverCommands() {
-		webServer.registerCommand("T1", new CMD_AimAtAprilTag(swerve, 4, 0.1));
-		webServer.registerCommand("T2", new CMD_AimAtAprilTag(swerve, 12, 0.1));
+		webServer.registerCommand("T1", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT));
+		webServer.registerCommand("T2", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_RIGHT));
+
+		webServer.registerCommand("TL1", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_BOTTOM));
+		webServer.registerCommand("TL2", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_TOP));
 	}
 
 	private void configurePathPlannerCommands() {

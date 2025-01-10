@@ -45,7 +45,8 @@ public class IO_SwerveReal implements IO_SwerveBase {
 							.createSwerveDrive(
 									RobotConstants.MAX_SPEED,
 									new Pose2d(
-											new Translation2d(Meter.of(1), Meter.of(4)), Rotation2d.fromDegrees(0)));
+											new Translation2d(Meter.of(0.01), Meter.of(0.01)),
+											Rotation2d.fromDegrees(0)));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
