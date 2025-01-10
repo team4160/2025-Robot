@@ -64,6 +64,8 @@ public class RobotContainer {
 
 		// Aim at tag 16 for testing
 		driverController.b().onTrue(new CMD_AimAtAprilTag(swerve, 16, 0.1));
+		
+		// Hello rae. You are a running!
 	}
 
 	private void configureWebserverCommands() {
