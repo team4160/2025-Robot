@@ -8,16 +8,15 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.CMD_AimAtAprilTag;
-import frc.robot.commands.CMD_AimAtPose;
 import frc.robot.commands.CMD_DriveAlign;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.InputConstants;
+import frc.robot.intake.IO_IntakeReal;
+import frc.robot.intake.SUB_Intake;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.vision.IO_VisionReal;
@@ -33,6 +32,7 @@ public class RobotContainer {
 
 	private final SUB_Swerve swerve;
 	private final SUB_Vision vision;
+	private final SUB_Intake intake;
 
 	private final InputConstants globalInputMap;
 
@@ -49,23 +49,18 @@ public class RobotContainer {
 				new SUB_Swerve(
 						vision, new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
+		intake = new SUB_Intake(new IO_IntakeReal());
+
 		configureDefaultCommands();
 		configureWebserverCommands();
 		configurePathPlannerCommands();
+		configureButtonBindings();
 	}
 
 	private void configureDefaultCommands() {
 
 		swerve.setDefaultCommand(
 				new CMD_DriveAlign(swerve, driverController, globalInputMap)); // Drive and aim at speaker
-
-		// Aim at 0,0 for testing
-		driverController.a().onTrue(new CMD_AimAtPose(swerve, new Pose2d(), 0.1));
-
-		// Aim at tag 16 for testing
-		driverController.b().onTrue(new CMD_AimAtAprilTag(swerve, 16, 0.1));
-		
-		// Hello rae. You are a running!
 	}
 
 	private void configureWebserverCommands() {
@@ -81,9 +76,19 @@ public class RobotContainer {
 		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Hi"));
 	}
 
+	private void configureButtonBindings() {
+
+		// Aim at 0,0 for testing
+		// driverController.a().onTrue(new CMD_AimAtPose(swerve, new Pose2d(), 0.1));
+
+		// Aim at tag 16 for testing
+		// driverController.b().onTrue(new CMD_AimAtAprilTag(swerve, 16, 0.1));
+
+		driverController.a().onTrue(intake.setState(SUB_Intake.State.ALGAE_GROUND));
+		driverController.a().toggleOnFalse(intake.setState(SUB_Intake.State.STOWED));
+	}
+
 	public Command getAutonomousCommand() {
 		return swerve.getAutonomousCommand("Test");
 	}
 }
-
-// (╯°□°)╯( ┻━┻   G(>o<)⅁  <- pov: The Junkyard Dogs

@@ -33,6 +33,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 public class IO_SwerveReal implements IO_SwerveBase {
+
 	private final SwerveDrive swerveDrive;
 	private final SwerveInputs inputs = new SwerveInputs();
 
@@ -53,7 +54,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 		// Configure SwerveDrive settings
 		swerveDrive.setHeadingCorrection(false);
-		swerveDrive.setCosineCompensator(false);
+		swerveDrive.setCosineCompensator(true);
 		swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
 		swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
 		swerveDrive.pushOffsetsToEncoders();
