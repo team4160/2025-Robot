@@ -10,6 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_DriveAlign;
@@ -84,8 +85,18 @@ public class RobotContainer {
 		// Aim at tag 16 for testing
 		// driverController.b().onTrue(new CMD_AimAtAprilTag(swerve, 16, 0.1));
 
-		driverController.a().onTrue(intake.setState(SUB_Intake.State.ALGAE_GROUND));
-		driverController.a().toggleOnFalse(intake.setState(SUB_Intake.State.STOWED));
+		/*SequentialCommandGroup
+			driverController.a().onTrue(intake.setState(SUB_Intake.State.ALGAE_GROUND));
+			driverController.a().toggleOnFalse(intake.setState(SUB_Intake.State.STOWED));
+		}
+			*/
+
+		driverController
+				.a()
+				.onTrue(
+						new ParallelCommandGroup(
+								intake.setState(SUB_Intake.State.ALGAE_GROUND),
+								swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT)));
 	}
 
 	public Command getAutonomousCommand() {
