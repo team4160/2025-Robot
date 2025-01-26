@@ -24,7 +24,7 @@ public enum InputConstants {
 			0.1, // Deadband
 			false, // Forward Inverted
 			true, // Left/Right Inverted
-			false // Rotation Inverted
+			true // Rotation Inverted
 			),
 	KEYBOARD(
 			0, // Forward/Back Axis

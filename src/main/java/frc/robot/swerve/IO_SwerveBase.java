@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
@@ -123,4 +124,6 @@ public interface IO_SwerveBase {
 	public void setupPathPlanner(SUB_Swerve swerveSubsystem);
 
 	public void addVisionMeasurement(Pose2d pose, double timestamp);
+
+	public Command setAllAngle(double angle);
 }

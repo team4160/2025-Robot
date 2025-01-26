@@ -9,11 +9,6 @@ package frc.robot.swerve;
 
 import static edu.wpi.first.units.Units.Meter;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,7 +17,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.RobotConstants;
 import java.io.File;
 import org.littletonrobotics.junction.Logger;
@@ -54,9 +50,9 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 		// Configure SwerveDrive settings
 		swerveDrive.setHeadingCorrection(false);
-		swerveDrive.setCosineCompensator(true);
-		swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
-		swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
+		//	swerveDrive.setCosineCompensator(true);
+		//	swerveDrive.setAngularVelocityCompensation(true, false, 0.1);
+		//	swerveDrive.setModuleEncoderAutoSynchronize(false, 1);
 		swerveDrive.pushOffsetsToEncoders();
 	}
 
@@ -176,7 +172,19 @@ public class IO_SwerveReal implements IO_SwerveBase {
 	}
 
 	@Override
+	public Command setAllAngle(double angle) {
+		return new InstantCommand(
+				() -> {
+					swerveDrive.getModules()[0].setAngle(angle);
+					swerveDrive.getModules()[1].setAngle(angle);
+					swerveDrive.getModules()[2].setAngle(angle);
+					swerveDrive.getModules()[3].setAngle(angle);
+				});
+	}
+
+	@Override
 	public void setupPathPlanner(SUB_Swerve swerveSubsystem) {
+		/*
 		try {
 			// Load PathPlanner config from GUI settings
 			RobotConfig config = RobotConfig.fromGUISettings();
@@ -220,6 +228,7 @@ public class IO_SwerveReal implements IO_SwerveBase {
 
 		// Preload PathPlanner Path finding
 		PathfindingCommand.warmupCommand().schedule();
+		*/
 	}
 
 	/**

@@ -5,7 +5,7 @@
   },
   "drive": {
     "type": "krakenx60",
-    "id": 3,
+    "id": 7,
     "canbus": "canivore"
   },
   "inverted": {
@@ -14,7 +14,7 @@
   },
   "angle": {
     "type": "sparkmax_neo",
-    "id": 4,
+    "id": 8,
     "canbus": "canivore"
   },
   "encoder": {
