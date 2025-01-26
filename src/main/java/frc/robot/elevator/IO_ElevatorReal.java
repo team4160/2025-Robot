@@ -15,16 +15,16 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
 
-	private final TalonFX motorOne;
-	private final TalonFX motorTwo;
+	private final TalonFX leftMotor;
+	private final TalonFX rightMotor;
 	private final MotionMagicVoltage motorRequest;
 
 	// private SparkMax motorOne;
 	// private SparkMax motorTwo;
 
 	public IO_ElevatorReal() {
-		motorOne = new TalonFX(0);
-		motorTwo = new TalonFX(0);
+		leftMotor = new TalonFX(10, "canivore");
+		rightMotor = new TalonFX(11, "canivore");
 		motorRequest = new MotionMagicVoltage(0);
 
 		var motorConfigs = new TalonFXConfiguration();
@@ -40,7 +40,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		- The stage multiplier accounts for additional travel as the stage extends (e.g., stage 2
 			doubles the first stage, stage 3 triples, etc.).
 			For this calculation:
-			(1 / 2.9167) * (PI * 0.0444754) * 3
+			(1 / 16.25) * (PI * 0.0444754) * 3
 			= 0.0257951242902 meters per motor rotation.
 		- For getting the exact middle position of the carriage, we add an offset.
 		*/
@@ -87,14 +87,14 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		Where:
 			Linear Velocity = (Free Speed in RPM / 60) / Gear Ratio * METERS_PER_MOTOR_ROTATION
 				- Free Speed in RPM: 5800
-				- Gear Ratio: 2.9167
+				- Gear Ratio: 16.25
 				- METERS_PER_MOTOR_ROTATION: 0.025795
 
 		For KrakenX60 with our gear ratio:
 			Free Speed (rps) = 5800 / 60 = 96.67 rps
-			Output Speed (rps) = 96.67 / 2.9167 ≈ 33.14 rps
-			Linear Velocity (m/s) = 33.14 * 0.025795 ≈ 0.855 m/s
-			kV = 12V / 0.855 m/s ≈ 14.04 V per m/s
+			Output Speed (rps) = 96.67 / 16.25 ≈ 5.948 rps
+			Linear Velocity (m/s) = 33.14 * 5.948 ≈ 197.11672 m/s
+			kV = 12V / 197.11672 m/s ≈ 0.0608776363568 V per m/s
 
 		5. Acceleration Feed Forward (kA):
 		- Start very small (0.001)
@@ -142,21 +142,21 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
 		// Apply configs
-		motorOne.getConfigurator().apply(motorConfigs);
-		motorTwo.getConfigurator().apply(motorConfigs);
+		leftMotor.getConfigurator().apply(motorConfigs);
+		rightMotor.getConfigurator().apply(motorConfigs);
 	}
 
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
-		inputs.heightM = motorOne.getPosition().getValueAsDouble();
-		inputs.velocityMPS = motorOne.getVelocity().getValueAsDouble();
-		inputs.motorOneCurrent = motorOne.getSupplyCurrent().getValueAsDouble();
-		inputs.motorTwoCurrent = motorTwo.getSupplyCurrent().getValueAsDouble();
+		inputs.heightM = leftMotor.getPosition().getValueAsDouble();
+		inputs.velocityMPS = leftMotor.getVelocity().getValueAsDouble();
+		inputs.leftMotorCurrent = leftMotor.getSupplyCurrent().getValueAsDouble();
+		inputs.rightMotorCurrent = rightMotor.getSupplyCurrent().getValueAsDouble();
 	}
 
 	@Override
 	public void setPositionM(double positionM) {
-		motorOne.setControl(motorRequest.withPosition(positionM));
-		motorTwo.setControl(new Follower(motorOne.getDeviceID(), false));
+		leftMotor.setControl(motorRequest.withPosition(positionM));
+		rightMotor.setControl(new Follower(leftMotor.getDeviceID(), false));
 	}
 }
