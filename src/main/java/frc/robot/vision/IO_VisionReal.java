@@ -171,6 +171,75 @@ public class IO_VisionReal implements IO_VisionBase {
 		}
 	}
 
+	/**
+	 * Updates the standard deviation for pose estimation based on camera results.
+	 * 
+	 * Calculates and adjusts standard deviation based on:
+	 * - Number of tags used in estimation
+	 * - Ambiguity of tag detections
+	 * 
+	 * @param camera The camera being evaluated
+	 * @param poseResult The estimated robot pose from the camera
+	 * @param targets The AprilTag targets used in pose estimation
+	 */
+	private void updateEstimationStdDevs(
+			CameraConstants.Camera camera,
+			Optional<EstimatedRobotPose> poseResult,
+			List<PhotonTrackedTarget> targets) {
+
+		if (poseResult.isEmpty()) {
+			currentStdDevs.put(camera, camera.singleTagStdDevs);
+			return;
+		}
+
+		Matrix<N3, N1> estStdDevs = camera.singleTagStdDevs;
+		int numTags = 0;
+		double avgDist = 0;
+
+		for (PhotonTrackedTarget target : targets) {
+			Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
+			if (tagPose.isEmpty()) {
+				continue;
+			}
+			numTags++;
+			avgDist +=
+					tagPose
+							.get()
+							.toPose2d()
+							.getTranslation()
+							.getDistance(poseResult.get().estimatedPose.toPose2d().getTranslation());
+		}
+
+		if (numTags == 0) {
+			currentStdDevs.put(camera, camera.singleTagStdDevs);
+			return;
+		}
+
+		avgDist /= numTags;
+
+		if (numTags > 1) {
+			estStdDevs = camera.multiTagStdDevs;
+		}
+
+		if (numTags == 1 && avgDist > 4) {
+			estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+		} else {
+			estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
+		}
+
+		currentStdDevs.put(camera, estStdDevs);
+	}
+
+	/**
+	 * Combines pose estimates from multiple cameras using weighted averaging.
+	 * 
+	 * Calculates a combined pose by:
+	 * - Weighting each camera's estimate based on its standard deviation
+	 * - Computing weighted averages for X, Y, and rotation
+	 * 
+	 * @param estimates A map of camera estimates to be combined
+	 * @return A combined EstimatedRobotPose representing the most accurate position
+	 */
 	private EstimatedRobotPose combineEstimates(
 			Map<CameraConstants.Camera, EstimatedRobotPose> estimates) {
 		double weightedX = 0;
@@ -218,53 +287,5 @@ public class IO_VisionReal implements IO_VisionBase {
 	@Override
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
 		return lastEstimatedPose;
-	}
-
-	private void updateEstimationStdDevs(
-			CameraConstants.Camera camera,
-			Optional<EstimatedRobotPose> estimatedPose,
-			List<PhotonTrackedTarget> targets) {
-
-		if (estimatedPose.isEmpty()) {
-			currentStdDevs.put(camera, camera.singleTagStdDevs);
-			return;
-		}
-
-		Matrix<N3, N1> estStdDevs = camera.singleTagStdDevs;
-		int numTags = 0;
-		double avgDist = 0;
-
-		for (PhotonTrackedTarget target : targets) {
-			Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-			if (tagPose.isEmpty()) {
-				continue;
-			}
-			numTags++;
-			avgDist +=
-					tagPose
-							.get()
-							.toPose2d()
-							.getTranslation()
-							.getDistance(estimatedPose.get().estimatedPose.toPose2d().getTranslation());
-		}
-
-		if (numTags == 0) {
-			currentStdDevs.put(camera, camera.singleTagStdDevs);
-			return;
-		}
-
-		avgDist /= numTags;
-
-		if (numTags > 1) {
-			estStdDevs = camera.multiTagStdDevs;
-		}
-
-		if (numTags == 1 && avgDist > 4) {
-			estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-		} else {
-			estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-		}
-
-		currentStdDevs.put(camera, estStdDevs);
 	}
 }
