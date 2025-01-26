@@ -21,23 +21,23 @@ public interface IO_ElevatorBase {
 
 		public double heightM = 0.0;
 		public double velocityMPS = 0.0;
-		public double motorOneCurrent = 0.0;
-		public double motorTwoCurrent = 0.0;
+		public double leftMotorCurrent = 0.0;
+		public double rightMotorCurrent = 0.0;
 
 		@Override
 		public void toLog(LogTable table) {
 			table.put("heightM", heightM);
 			table.put("velocityMPS", velocityMPS);
-			table.put("motorOneCurrent", motorOneCurrent);
-			table.put("motorTwoCurrent", motorTwoCurrent);
+			table.put("leftMotorCurrent", leftMotorCurrent);
+			table.put("rightMotorCurrent", rightMotorCurrent);
 		}
 
 		@Override
 		public void fromLog(LogTable table) {
 			heightM = table.get("heightM", heightM);
 			velocityMPS = table.get("velocityMPS", velocityMPS);
-			motorOneCurrent = table.get("motorOneCurrent", motorOneCurrent);
-			motorTwoCurrent = table.get("motorTwoCurrent", motorTwoCurrent);
+			leftMotorCurrent = table.get("leftMotorCurrent", leftMotorCurrent);
+			rightMotorCurrent = table.get("rightMotorCurrent", rightMotorCurrent);
 		}
 	}
 
