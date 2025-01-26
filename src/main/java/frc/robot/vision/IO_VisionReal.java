@@ -173,11 +173,10 @@ public class IO_VisionReal implements IO_VisionBase {
 
 	/**
 	 * Updates the standard deviation for pose estimation based on camera results.
-	 * 
-	 * Calculates and adjusts standard deviation based on:
-	 * - Number of tags used in estimation
-	 * - Ambiguity of tag detections
-	 * 
+	 *
+	 * <p>Calculates and adjusts standard deviation based on: - Number of tags used in estimation -
+	 * Ambiguity of tag detections
+	 *
 	 * @param camera The camera being evaluated
 	 * @param poseResult The estimated robot pose from the camera
 	 * @param targets The AprilTag targets used in pose estimation
@@ -232,11 +231,10 @@ public class IO_VisionReal implements IO_VisionBase {
 
 	/**
 	 * Combines pose estimates from multiple cameras using weighted averaging.
-	 * 
-	 * Calculates a combined pose by:
-	 * - Weighting each camera's estimate based on its standard deviation
-	 * - Computing weighted averages for X, Y, and rotation
-	 * 
+	 *
+	 * <p>Calculates a combined pose by: - Weighting each camera's estimate based on its standard
+	 * deviation - Computing weighted averages for X, Y, and rotation
+	 *
 	 * @param estimates A map of camera estimates to be combined
 	 * @return A combined EstimatedRobotPose representing the most accurate position
 	 */
