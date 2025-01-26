@@ -44,5 +44,7 @@ public interface IO_ElevatorBase {
 	/** Updates the set of loggable inputs. */
 	public void updateInputs(ElevatorInputs inputs);
 
+	public void setVoltage(double voltage);
+
 	public void setPositionM(double positionM);
 }

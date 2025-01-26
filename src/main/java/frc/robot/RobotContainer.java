@@ -13,8 +13,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_Drive;
+import frc.robot.commands.CMD_ElevatorManual;
 import frc.robot.constants.InputConstants;
-import frc.robot.led.SUB_Led;
+import frc.robot.elevator.IO_ElevatorReal;
+import frc.robot.elevator.SUB_Elevator;
+import frc.robot.misc.SUB_Led;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.vision.IO_VisionReal;
@@ -23,12 +26,15 @@ import frc.robot.vision.SUB_Vision;
 import java.io.File;
 
 public class RobotContainer {
+
 	private final CommandXboxController driverController;
+	private final CommandXboxController operatorController;
 
 	// private final WebServer webServer;
 
 	private final SUB_Swerve swerve;
 	private final SUB_Vision vision;
+	private final SUB_Elevator elevator;
 	// private final SUB_Intake intake;
 
 	private final SUB_Led led;
@@ -42,13 +48,15 @@ public class RobotContainer {
 		driverController = new CommandXboxController(0); // port 0
 		globalInputMap = InputConstants.TX16S_MAIN; // Set the global input map to Xbox Controller
 
+		operatorController = new CommandXboxController(1);
+
 		vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
 
 		swerve = new SUB_Swerve(new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
-		led = new SUB_Led();
+		elevator = new SUB_Elevator(new IO_ElevatorReal());
 
-		// intake = new SUB_Intake(new IO_IntakeReal());
+		led = new SUB_Led();
 
 		configureDefaultCommands();
 		configureWebserverCommands();
@@ -62,6 +70,20 @@ public class RobotContainer {
 		//		new CMD_DriveAlign(swerve, driverController, globalInputMap)); // Drive and aim at speaker
 
 		swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
+		elevator.setDefaultCommand(new CMD_ElevatorManual(elevator, operatorController));
+
+		//	operatorController.a().onTrue(elevator.setVoltage(8.0)); // 0.5m
+		//
+
+		// operatorController.a().onFalse(elevator.setVoltage(0));
+
+		//	operatorController.b().onTrue(elevator.setVoltage(0));
+
+		/*
+		 * 		operatorController.a().onTrue(elevator.setV(SUB_Elevator.State.L1_SCORING)); // 0.5m
+		operatorController.a().onFalse(elevator.setState(SUB_Elevator.State.STOWED));
+		operatorController.b().onTrue(elevator.setState(SUB_Elevator.State.STOWED));
+		 */
 	}
 
 	private void configureWebserverCommands() {

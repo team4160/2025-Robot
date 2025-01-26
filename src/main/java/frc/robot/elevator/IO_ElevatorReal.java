@@ -8,7 +8,6 @@
 package frc.robot.elevator;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -24,7 +23,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	public IO_ElevatorReal() {
 		leftMotor = new TalonFX(10, "canivore");
-		rightMotor = new TalonFX(11, "canivore");
+		rightMotor = new TalonFX(9, "canivore");
 		motorRequest = new MotionMagicVoltage(0);
 
 		var motorConfigs = new TalonFXConfiguration();
@@ -81,7 +80,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		- Too low: Lags behind trajectory
 
 		4.1. kV Calculation:
-		- Theoretical kV represents the voltage required to achieve a linear velocity of 1 m/s. 
+		- Theoretical kV represents the voltage required to achieve a linear velocity of 1 m/s.
 		- It is calculated using the formula:
 			kV = Voltage / Linear Velocity
 		Where:
@@ -120,35 +119,61 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Apply slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
-		slot0Configs.kS = 0.25; // Static friction compensation (V)
+		slot0Configs.kS = 0; // Static friction compensation (V)
+		slot0Configs.kV = 0; // Velocity feed forward (V per m/s)
+		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²)
+		slot0Configs.kP = 0; // Position error gain (V per meter)
+		slot0Configs.kI = 0; // Integral gain for steady-state error
+		slot0Configs.kD = 0; // Derivative gain for damping
+		slot0Configs.kG = 0.0; // Gravity compensation
+		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+
+		/*
+				slot0Configs.kS = 0.25; // Static friction compensation (V)
 		slot0Configs.kV = 0.12; // Velocity feed forward (V per m/s)
 		slot0Configs.kA = 0.01; // Acceleration feed forward (V per m/s²)
 		slot0Configs.kP = 0.11; // Position error gain (V per meter)
 		slot0Configs.kI = 0; // Integral gain for steady-state error
 		slot0Configs.kD = 0; // Derivative gain for damping
-		slot0Configs.kG = 0; // Gravity compensation
+		slot0Configs.kG = 0.1; // Gravity compensation
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+		 */
 
 		// Motion magic max rates
 		var motionMagicConfigs = motorConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = 2.0; // meters per second
-		motionMagicConfigs.MotionMagicAcceleration = 4.0; // meters per second squared
-		motionMagicConfigs.MotionMagicJerk = 40.0; // meters per second cubed
+		motionMagicConfigs.MotionMagicCruiseVelocity = 0.5; // meters per second
+		motionMagicConfigs.MotionMagicAcceleration = 1.0; // meters per second squared
+		motionMagicConfigs.MotionMagicJerk = 10.0; // meters per second cubed
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2.43; // Set to max height in meters (8ft rn)
+		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
+				2.43; // Set to max height in meters (8ft rn)
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
+		// CCW+ 9
+		// CW+ 10
+
+		// ID 10
+		// motorConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+		// ID 9
+		// var rightMotorConfig = motorConfigs;
+		// rightMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
 		// Apply configs
-		leftMotor.getConfigurator().apply(motorConfigs);
-		rightMotor.getConfigurator().apply(motorConfigs);
+		// leftMotor.getConfigurator().apply(motorConfigs);
+		// rightMotor.getConfigurator().apply(rightMotorConfig);
+
+		// Reset encoder to zero
+		leftMotor.setPosition(0);
+		rightMotor.setPosition(0);
 	}
 
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
-		inputs.heightM = leftMotor.getPosition().getValueAsDouble();
+		inputs.heightM = leftMotor.getPosition().getValueAsDouble() / 1000;
 		inputs.velocityMPS = leftMotor.getVelocity().getValueAsDouble();
 		inputs.leftMotorCurrent = leftMotor.getSupplyCurrent().getValueAsDouble();
 		inputs.rightMotorCurrent = rightMotor.getSupplyCurrent().getValueAsDouble();
@@ -156,7 +181,15 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	@Override
 	public void setPositionM(double positionM) {
-		leftMotor.setControl(motorRequest.withPosition(positionM));
-		rightMotor.setControl(new Follower(leftMotor.getDeviceID(), false));
+		//	leftMotor.setControl(motorRequest.withPosition(positionM));
+		rightMotor.setControl(motorRequest.withPosition(positionM));
+	}
+
+	// LEFT 10+ V up
+	// RIGHT 9- V up
+	@Override
+	public void setVoltage(double voltage) {
+		leftMotor.setVoltage(voltage);
+		rightMotor.setVoltage(-voltage);
 	}
 }

@@ -183,10 +183,6 @@ public class SUB_Swerve extends SubsystemBase {
 		return new PathPlannerAuto(pathName);
 	}
 
-	public Command setAllToZero(double angle) {
-		return io.setAllAngle(angle);
-	}
-
 	/**
 	 * Use PathPlanner Path finding to go to a point on the field.
 	 *

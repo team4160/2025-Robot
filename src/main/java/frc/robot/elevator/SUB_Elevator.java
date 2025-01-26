@@ -54,6 +54,13 @@ public class SUB_Elevator extends SubsystemBase {
 		Logger.processInputs("Elevator", inputs);
 	}
 
+	public Command setVoltage(double voltage) {
+		return new InstantCommand(
+				() -> {
+					io.setVoltage(voltage);
+				});
+	}
+
 	public Command setState(State state) {
 		return new InstantCommand(
 				() -> {
