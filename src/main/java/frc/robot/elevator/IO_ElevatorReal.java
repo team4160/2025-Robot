@@ -7,23 +7,29 @@
 
 package frc.robot.elevator;
 
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
 
-	private final TalonFX leftMotor;
-	private final TalonFX rightMotor;
+	private final TalonFX leftMotor_10;
+	private final TalonFX rightMotor_9;
 	private final MotionMagicVoltage motorRequest;
 
 	// private SparkMax motorOne;
 	// private SparkMax motorTwo;
 
 	public IO_ElevatorReal() {
-		leftMotor = new TalonFX(10, "canivore");
-		rightMotor = new TalonFX(9, "canivore");
+		
+		leftMotor_10 = new TalonFX(10, "canivore");
+		rightMotor_9 = new TalonFX(9, "canivore");
+
 		motorRequest = new MotionMagicVoltage(0);
 
 		var motorConfigs = new TalonFXConfiguration();
@@ -147,49 +153,57 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold =
-				2.43; // Set to max height in meters (8ft rn)
+		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1524; // Set to max height in milimeters (3ft for testing)
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
-		// CCW+ 9
-		// CW+ 10
+		// Needs CCW+ to bring elevator up
+		var rightMotorConfig = motorConfigs;
+		rightMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		var rightMotorConfigStatus = rightMotor_9.getConfigurator().apply(motorConfigs);
 
-		// ID 10
-		// motorConfigs.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		// Check if the configuration was successful
+		if (rightMotorConfigStatus != StatusCode.OK) {
+			DriverStation.reportWarning("Failed to apply right motor configuration: " + rightMotorConfigStatus, false);
+		}
 
-		// ID 9
-		// var rightMotorConfig = motorConfigs;
-		// rightMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		// needs CW+ to bring elevator up 
+		var leftMotorConfig = motorConfigs;
+		leftMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		var leftMotorConfigStatus = leftMotor_10.getConfigurator().apply(motorConfigs);
 
-		// Apply configs
-		// leftMotor.getConfigurator().apply(motorConfigs);
-		// rightMotor.getConfigurator().apply(rightMotorConfig);
+		// Check if the configuration was successful
+		if (leftMotorConfigStatus != StatusCode.OK) {
+			DriverStation.reportWarning("Failed to apply left motor configuration: " + leftMotorConfigStatus, false);
+		}
 
 		// Reset encoder to zero
-		leftMotor.setPosition(0);
-		rightMotor.setPosition(0);
+		leftMotor_10.setPosition(0);
+		rightMotor_9.setPosition(0);
 	}
 
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
-		inputs.heightM = leftMotor.getPosition().getValueAsDouble() / 1000;
-		inputs.velocityMPS = leftMotor.getVelocity().getValueAsDouble();
-		inputs.leftMotorCurrent = leftMotor.getSupplyCurrent().getValueAsDouble();
-		inputs.rightMotorCurrent = rightMotor.getSupplyCurrent().getValueAsDouble();
+		inputs.heightM = leftMotor_10.getPosition().getValueAsDouble() / 1000;
+		inputs.velocityMPS = leftMotor_10.getVelocity().getValueAsDouble() / 1000;
+		inputs.accelerationMPS2 = leftMotor_10.getAcceleration().getValueAsDouble() / 1000;
+		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
+		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
+		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
+		inputs.rightMotorCurrent = rightMotor_9.getSupplyCurrent().getValueAsDouble();
+		inputs.leftMotorPower = leftMotor_10.getDutyCycle().getValueAsDouble();
+		inputs.rightMotorPower = rightMotor_9.getDutyCycle().getValueAsDouble();
 	}
 
 	@Override
 	public void setPositionM(double positionM) {
-		//	leftMotor.setControl(motorRequest.withPosition(positionM));
-		rightMotor.setControl(motorRequest.withPosition(positionM));
+		leftMotor_10.setControl(motorRequest.withPosition(positionM));
+		rightMotor_9.setControl(motorRequest.withPosition(positionM));
 	}
 
-	// LEFT 10+ V up
-	// RIGHT 9- V up
 	@Override
 	public void setVoltage(double voltage) {
-		leftMotor.setVoltage(voltage);
-		rightMotor.setVoltage(-voltage);
+		leftMotor_10.setVoltage(voltage);
+		rightMotor_9.setVoltage(voltage);
 	}
 }
