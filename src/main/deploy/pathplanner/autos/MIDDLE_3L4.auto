@@ -21,6 +21,18 @@
           "data": {
             "pathName": "M_M2_3L4"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "M_M3_3L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "M_E_3L4"
+          }
         }
       ]
     }
