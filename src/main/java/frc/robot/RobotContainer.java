@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_Drive;
-import frc.robot.commands.CMD_ElevatorManual;
+import frc.robot.commands.CMD_SetElevator;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
 import frc.robot.elevator.SUB_Elevator;
@@ -70,10 +70,8 @@ public class RobotContainer {
 		//		new CMD_DriveAlign(swerve, driverController, globalInputMap)); // Drive and aim at speaker
 
 		swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
-		elevator.setDefaultCommand(new CMD_ElevatorManual(elevator, operatorController));
 
-		//	operatorController.a().onTrue(elevator.setVoltage(8.0)); // 0.5m
-		//
+		// elevator.setDefaultCommand(new CMD_ElevatorManual(elevator, operatorController));
 
 		// operatorController.a().onFalse(elevator.setVoltage(0));
 
@@ -96,10 +94,18 @@ public class RobotContainer {
 
 	private void configurePathPlannerCommands() {
 
-		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Hi"));
+		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Intake Algae"));
 	}
 
 	private void configureButtonBindings() {
+
+		operatorController.a().onTrue(new CMD_SetElevator(elevator, SUB_Elevator.State.L1_SCORING));
+
+		operatorController.y().onTrue(new CMD_SetElevator(elevator, SUB_Elevator.State.L4_SCORING));
+
+		operatorController.x().onTrue(new CMD_SetElevator(elevator, SUB_Elevator.State.ALGAE_BARGE));
+
+		operatorController.b().onTrue(new CMD_SetElevator(elevator, SUB_Elevator.State.STOWED));
 
 		// Aim at 0,0 for testing
 		// driverController.a().onTrue(new CMD_AimAtPose(swerve, new Pose2d(), 0.1));
@@ -124,6 +130,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("Test");
+		return swerve.getAutonomousCommand("R_3L4");
 	}
 }

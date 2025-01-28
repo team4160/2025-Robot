@@ -10,55 +10,29 @@ package frc.robot.misc;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SUB_Music extends SubsystemBase {
 	private Orchestra orchestra;
 	private List<TalonFX> instruments;
-	private static final int[] MOTOR_IDS = {10, 9}; // Add your motor IDs here
-	private static final String MUSIC_FILE = "music/pigges.chrp";
+	// private static final int[] MOTOR_IDS = {10, 9}; // Add your motor IDs here
+	private static final String MUSIC_FILE = "pigges.chrp";
+
+	private TalonFX motorOne = new TalonFX(10, "canivore");
+	private TalonFX motorTwo = new TalonFX(9, "canivore");
 
 	public SUB_Music() {
 		orchestra = new Orchestra();
-		instruments = new ArrayList<>();
-
-		// Add instruments automatically
-		addInstruments(MOTOR_IDS);
+		orchestra.addInstrument(motorOne);
+		orchestra.addInstrument(motorTwo);
 
 		// Load the music file from deploy directory
 		String deployPath = Paths.get(Filesystem.getDeployDirectory().getPath(), MUSIC_FILE).toString();
 		orchestra.loadMusic(deployPath);
 
 		orchestra.play();
-	}
-
-	private void addInstruments(int... canIDs) {
-		for (int id : canIDs) {
-			TalonFX talon = new TalonFX(id, "canivore");
-			instruments.add(talon);
-			orchestra.addInstrument(talon);
-		}
-	}
-
-	public Command play() {
-		return new InstantCommand(() -> orchestra.play());
-	}
-
-	public Command stop() {
-		return new InstantCommand(() -> orchestra.stop());
-	}
-
-	public Command pause() {
-		return new InstantCommand(() -> orchestra.pause());
-	}
-
-	public Command isPlaying() {
-		return new InstantCommand(() -> orchestra.isPlaying());
 	}
 
 	@Override

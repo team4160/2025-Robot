@@ -9,28 +9,25 @@ package frc.robot.elevator;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	private final TalonFX leftMotor_10;
 	private final TalonFX rightMotor_9;
-	private final MotionMagicVoltage motorRequest;
-
-	// private SparkMax motorOne;
-	// private SparkMax motorTwo;
+	private final PositionVoltage motorRequest;
+	private double lastSetpointM;
 
 	public IO_ElevatorReal() {
-		
+
 		leftMotor_10 = new TalonFX(10, "canivore");
 		rightMotor_9 = new TalonFX(9, "canivore");
 
-		motorRequest = new MotionMagicVoltage(0);
+		lastSetpointM = 0.0;
 
 		var motorConfigs = new TalonFXConfiguration();
 
@@ -125,13 +122,15 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Apply slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
-		slot0Configs.kS = 0; // Static friction compensation (V)
-		slot0Configs.kV = 0; // Velocity feed forward (V per m/s)
+		slot0Configs.kS = 0.06; // Static friction compensation (V)
+		slot0Configs.kV = 0; // Velocity feed forward (V per m/s) // 0.8
 		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²)
-		slot0Configs.kP = 0; // Position error gain (V per meter)
+
+		slot0Configs.kP = 0.05; // Position error gain (V per meter)
 		slot0Configs.kI = 0; // Integral gain for steady-state error
 		slot0Configs.kD = 0; // Derivative gain for damping
-		slot0Configs.kG = 0.0; // Gravity compensation
+
+		slot0Configs.kG = 0.22; // Gravity compensation
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
 
 		/*
@@ -147,35 +146,42 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Motion magic max rates
 		var motionMagicConfigs = motorConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = 0.5; // meters per second
-		motionMagicConfigs.MotionMagicAcceleration = 1.0; // meters per second squared
-		motionMagicConfigs.MotionMagicJerk = 10.0; // meters per second cubed
+		motionMagicConfigs.MotionMagicCruiseVelocity = 2; // meters per second
+		motionMagicConfigs.MotionMagicAcceleration = 4.0; // meters per second squared
+		motionMagicConfigs.MotionMagicJerk = 80.0; // meters per second cubed
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1524; // Set to max height in milimeters (3ft for testing)
-		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2350; // Set to max height in
+		// milimeters (3ft for testing)
+		// motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+		// motorConfigs.SoftwarzeLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
 		// Needs CCW+ to bring elevator up
 		var rightMotorConfig = motorConfigs;
-		rightMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+		rightMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 		var rightMotorConfigStatus = rightMotor_9.getConfigurator().apply(motorConfigs);
 
 		// Check if the configuration was successful
 		if (rightMotorConfigStatus != StatusCode.OK) {
-			DriverStation.reportWarning("Failed to apply right motor configuration: " + rightMotorConfigStatus, false);
+			DriverStation.reportWarning(
+					"Failed to apply right motor configuration: " + rightMotorConfigStatus, false);
 		}
 
-		// needs CW+ to bring elevator up 
+		// needs CW+ to bring elevator up
 		var leftMotorConfig = motorConfigs;
-		leftMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+		leftMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 		var leftMotorConfigStatus = leftMotor_10.getConfigurator().apply(motorConfigs);
 
 		// Check if the configuration was successful
 		if (leftMotorConfigStatus != StatusCode.OK) {
-			DriverStation.reportWarning("Failed to apply left motor configuration: " + leftMotorConfigStatus, false);
+			DriverStation.reportWarning(
+					"Failed to apply left motor configuration: " + leftMotorConfigStatus, false);
 		}
+
+		// Create motor request
+		// motorRequest = new MotionMagicVoltage(0);
+		motorRequest = new PositionVoltage(0).withSlot(0);
 
 		// Reset encoder to zero
 		leftMotor_10.setPosition(0);
@@ -187,6 +193,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		inputs.heightM = leftMotor_10.getPosition().getValueAsDouble() / 1000;
 		inputs.velocityMPS = leftMotor_10.getVelocity().getValueAsDouble() / 1000;
 		inputs.accelerationMPS2 = leftMotor_10.getAcceleration().getValueAsDouble() / 1000;
+		inputs.setpointM = lastSetpointM / 1000;
 		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
 		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
 		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
@@ -196,9 +203,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 	}
 
 	@Override
-	public void setPositionM(double positionM) {
-		leftMotor_10.setControl(motorRequest.withPosition(positionM));
-		rightMotor_9.setControl(motorRequest.withPosition(positionM));
+	public void setPositionM(double newPositionM) {
+		double setpoint = newPositionM * 1000;
+		lastSetpointM = setpoint;
+		leftMotor_10.setControl(motorRequest.withPosition(setpoint));
+		rightMotor_9.setControl(motorRequest.withPosition(setpoint));
 	}
 
 	@Override
