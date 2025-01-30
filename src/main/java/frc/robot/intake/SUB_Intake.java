@@ -16,14 +16,14 @@ public class SUB_Intake extends SubsystemBase {
 
 	public enum State {
 		STOWED(-15, 0.0),
-		CORAL_STATION(120, -0.3),
-		ALGAE_GROUND(45, -1.0),
-		ALGAE_REMOVAL(85, 0.8),
-		ALGAE_PROCESSOR(85, 1.0),
-		ALGAE_BARGE(135, 0.25),
-		L1_SCORING(30, 0.8),
-		L2_L3_SCORING(45, 0.8),
-		L4_SCORING(30, 0.8);
+		CORAL_STATION(90, 0.3),
+		ALGAE_GROUND(45, 1.0),
+		ALGAE_REMOVAL(85, -0.8),
+		ALGAE_PROCESSOR(85, -1.0),
+		ALGAE_BARGE(135, -0.25),
+		L1_SCORING(30, -0.8),
+		L2_L3_SCORING(45, -0.8),
+		L4_SCORING(30, -0.8);
 
 		private final int deg;
 		private final double speed;

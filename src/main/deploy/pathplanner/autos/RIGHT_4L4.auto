@@ -63,6 +63,30 @@
           "data": {
             "name": "S_L4"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_S_4L4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake_Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "R_E_4L4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "S_L4"
+          }
         }
       ]
     }

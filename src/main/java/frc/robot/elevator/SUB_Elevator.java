@@ -8,37 +8,16 @@
 package frc.robot.elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.misc.RobotState;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
-
-	public enum State {
-		STOWED(0.1),
-		CORAL_STATION(1.0),
-		ALGAE_GROUND(0.1),
-		ALGAE_PROCESSOR(0.1),
-		ALGAE_BARGE(2.35),
-		L1_SCORING(0.5),
-		L2_SCORING(0.8),
-		L3_SCORING(1.2),
-		L4_SCORING(1.85);
-
-		private final double heightM;
-
-		State(double heightM) {
-			this.heightM = heightM;
-		}
-
-		public double getHeightM() {
-			return heightM;
-		}
-	}
 
 	private final IO_ElevatorBase io;
 
 	private final IO_ElevatorBase.ElevatorInputs inputs = new IO_ElevatorBase.ElevatorInputs();
 
-	private State currentState = State.STOWED;
+	private RobotState.State currentState = RobotState.State.STOWED;
 
 	public SUB_Elevator(IO_ElevatorBase io) {
 		this.io = io;
@@ -48,7 +27,7 @@ public class SUB_Elevator extends SubsystemBase {
 	public void periodic() {
 
 		// Update state
-		io.setPositionM(currentState.heightM);
+		io.setPositionM(currentState.getHeightM());
 
 		// Update inputs
 		io.updateInputs(inputs);
@@ -57,7 +36,11 @@ public class SUB_Elevator extends SubsystemBase {
 		Logger.processInputs("Elevator", inputs);
 	}
 
-	public void updateState(State newState) {
+	public void updateState(RobotState.State newState) {
 		currentState = newState;
+	}
+
+	public RobotState.State getCurrentState() {
+		return currentState;
 	}
 }

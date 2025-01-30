@@ -13,6 +13,8 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
@@ -22,12 +24,24 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 	private final PositionVoltage motorRequest;
 	private double lastSetpointM;
 
-	public IO_ElevatorReal() {
+	// Motion Profile objects
+	private final TrapezoidProfile profile;
+	private TrapezoidProfile.State setpoint;
+	private TrapezoidProfile.State goal;
 
+	public IO_ElevatorReal() {
 		leftMotor_10 = new TalonFX(10, "canivore");
 		rightMotor_9 = new TalonFX(9, "canivore");
 
 		lastSetpointM = 0.0;
+
+		profile =
+				new TrapezoidProfile(
+						new TrapezoidProfile.Constraints(2500, 7000) // 2 m/s velocity, 6 m/s² acceleration
+						);
+
+		setpoint = new TrapezoidProfile.State(0, 0);
+		goal = new TrapezoidProfile.State(0, 0);
 
 		var motorConfigs = new TalonFXConfiguration();
 
@@ -122,33 +136,16 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Apply slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
-		slot0Configs.kS = 0.06; // Static friction compensation (V)
-		slot0Configs.kV = 0; // Velocity feed forward (V per m/s) // 0.8
-		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²)
+		slot0Configs.kS = 0.35; // Static friction compensation (V) // 0.06
+		slot0Configs.kV = 0; // Velocity feed forward (V per m/s) // 0
+		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²) // 0
 
-		slot0Configs.kP = 0.05; // Position error gain (V per meter)
-		slot0Configs.kI = 0; // Integral gain for steady-state error
-		slot0Configs.kD = 0; // Derivative gain for damping
+		slot0Configs.kP = 0.052; // Position error gain (V per meter) // 0.05
+		slot0Configs.kI = 0; // Integral gain for steady-state error // 0
+		slot0Configs.kD = 0; // Derivative gain for damping // 0
 
-		slot0Configs.kG = 0.22; // Gravity compensation
+		slot0Configs.kG = 0.22; // Gravity compensation // 0.22
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
-
-		/*
-				slot0Configs.kS = 0.25; // Static friction compensation (V)
-		slot0Configs.kV = 0.12; // Velocity feed forward (V per m/s)
-		slot0Configs.kA = 0.01; // Acceleration feed forward (V per m/s²)
-		slot0Configs.kP = 0.11; // Position error gain (V per meter)
-		slot0Configs.kI = 0; // Integral gain for steady-state error
-		slot0Configs.kD = 0; // Derivative gain for damping
-		slot0Configs.kG = 0.1; // Gravity compensation
-		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
-		 */
-
-		// Motion magic max rates
-		var motionMagicConfigs = motorConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = 2; // meters per second
-		motionMagicConfigs.MotionMagicAcceleration = 4.0; // meters per second squared
-		motionMagicConfigs.MotionMagicJerk = 80.0; // meters per second cubed
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
@@ -179,8 +176,11 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 					"Failed to apply left motor configuration: " + leftMotorConfigStatus, false);
 		}
 
+		// Set brake mode
+		leftMotor_10.setNeutralMode(NeutralModeValue.Brake);
+		rightMotor_9.setNeutralMode(NeutralModeValue.Brake);
+
 		// Create motor request
-		// motorRequest = new MotionMagicVoltage(0);
 		motorRequest = new PositionVoltage(0).withSlot(0);
 
 		// Reset encoder to zero
@@ -190,6 +190,17 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	@Override
 	public void updateInputs(ElevatorInputs inputs) {
+		// Calculate next profile setpoint
+		setpoint = profile.calculate(0.020, setpoint, goal);
+
+		// Update motor positions with profile values
+		motorRequest.Position = setpoint.position;
+		motorRequest.Velocity = setpoint.velocity;
+
+		leftMotor_10.setControl(motorRequest);
+		rightMotor_9.setControl(motorRequest);
+
+		// Update inputs
 		inputs.heightM = leftMotor_10.getPosition().getValueAsDouble() / 1000;
 		inputs.velocityMPS = leftMotor_10.getVelocity().getValueAsDouble() / 1000;
 		inputs.accelerationMPS2 = leftMotor_10.getAcceleration().getValueAsDouble() / 1000;
@@ -204,10 +215,10 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	@Override
 	public void setPositionM(double newPositionM) {
-		double setpoint = newPositionM * 1000;
-		lastSetpointM = setpoint;
-		leftMotor_10.setControl(motorRequest.withPosition(setpoint));
-		rightMotor_9.setControl(motorRequest.withPosition(setpoint));
+		// Convert to millimeters and update goal state
+		double targetMM = newPositionM * 1000;
+		goal = new TrapezoidProfile.State(targetMM, 0);
+		lastSetpointM = targetMM;
 	}
 
 	@Override

@@ -10,56 +10,62 @@ package frc.robot.misc;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdleConfiguration;
-import com.ctre.phoenix.led.RainbowAnimation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SUB_Led extends SubsystemBase {
-
-	public enum State {
-		STOWED(0, 0, 0),
-		CORAL_STATION(255, 127, 80),
-		ALGAE_GROUND(0, 255, 0),
-		ALGAE_REMOVAL(0, 255, 0),
-		ALGAE_PROCESSOR(0, 255, 0),
-		ALGAE_BARGE(0, 255, 0),
-		L1_SCORING(255, 255, 0),
-		L2_L3_SCORING(255, 255, 0),
-		L4_SCORING(255, 255, 0);
-		private final int r, g, b;
-
-		State(int r, int g, int b) {
-			this.r = r;
-			this.g = g;
-			this.b = b;
-		}
-	}
-
 	private CANdle candle;
-	private static final int LED_COUNT = 300; // Adjust this to match your LED strip length
-	private static final double BRIGHTNESS = 0.8;
-	private static final double SPEED = 0.7;
+	private static final int LED_COUNT = 300;
+	private static final int DEFAULT_ANIMATION_SLOT = 0;
 
 	public SUB_Led() {
 		candle = new CANdle(11, "canivore");
 		CANdleConfiguration config = new CANdleConfiguration();
 		config.stripType = LEDStripType.RGB;
-		config.brightnessScalar = BRIGHTNESS;
+		config.brightnessScalar = 1.0;
 		candle.configAllSettings(config);
-
-		// Set rainbow animation by default
-		RainbowAnimation rainbowAnim = new RainbowAnimation(BRIGHTNESS, SPEED, LED_COUNT);
-		candle.animate(rainbowAnim);
+		setFullStripColor(255, 0, 0); // Default red
 	}
 
 	@Override
 	public void periodic() {}
 
-	public Command setState(State state) {
-		return new InstantCommand(
-				() -> {
-					candle.setLEDs(state.r, state.g, state.b);
-				});
+	private void setFullStripColor(int r, int g, int b) {
+		candle.clearAnimation(DEFAULT_ANIMATION_SLOT);
+		candle.setLEDs(r, g, b, 0, 0, LED_COUNT);
+	}
+
+	public void updateState(RobotState.State newState) {
+		switch (newState) {
+			case STOWED_CORAL:
+				setFullStripColor(255, 255, 255);
+				break;
+			case STOWED:
+				setFullStripColor(255, 0, 0);
+				break;
+			case L1_SCORING:
+				setFullStripColor(255, 0, 0);
+				break;
+			case L2_SCORING:
+				setFullStripColor(245, 179, 66);
+				break;
+			case L3_SCORING:
+				setFullStripColor(255, 255, 0);
+				break;
+			case L4_SCORING:
+				setFullStripColor(0, 255, 0);
+				break;
+			case CORAL_STATION:
+				setFullStripColor(0, 0, 255);
+				break;
+			case CLIMB:
+				candle.clearAnimation(DEFAULT_ANIMATION_SLOT);
+				candle.animate(
+						new StrobeAnimation(240, 10, 180, 0, 98.0 / 256.0, LED_COUNT), DEFAULT_ANIMATION_SLOT);
+				break;
+			default:
+				setFullStripColor(255, 0, 0);
+				break;
+		}
 	}
 }

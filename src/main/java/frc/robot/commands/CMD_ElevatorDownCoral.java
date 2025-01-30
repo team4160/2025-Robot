@@ -12,22 +12,36 @@ import frc.robot.elevator.SUB_Elevator;
 import frc.robot.misc.RobotState;
 import frc.robot.misc.SUB_Led;
 
-public class CMD_SetElevator extends Command {
+public class CMD_ElevatorDownCoral extends Command {
 	private final SUB_Elevator elevator;
 	private final SUB_Led led;
-	private final RobotState.State state;
 
-	public CMD_SetElevator(SUB_Elevator elevator, SUB_Led led, RobotState.State state) {
+	public CMD_ElevatorDownCoral(SUB_Elevator elevator, SUB_Led led) {
 		this.elevator = elevator;
 		this.led = led;
-		this.state = state;
+
 		addRequirements(elevator);
 	}
 
 	@Override
 	public void initialize() {
-		elevator.updateState(state);
-		led.updateState(state);
+
+		RobotState.State currentState = elevator.getCurrentState();
+
+		RobotState.State newState = RobotState.State.L1_SCORING;
+
+		if (currentState == RobotState.State.L4_SCORING) {
+			newState = RobotState.State.L3_SCORING;
+
+		} else if (currentState == RobotState.State.L3_SCORING) {
+			newState = RobotState.State.L2_SCORING;
+
+		} else if (currentState == RobotState.State.L2_SCORING) {
+			newState = RobotState.State.L1_SCORING;
+		}
+
+		elevator.updateState(newState);
+		led.updateState(newState);
 	}
 
 	@Override

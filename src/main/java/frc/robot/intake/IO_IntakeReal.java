@@ -7,9 +7,12 @@
 
 package frc.robot.intake;
 
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.util.IRBeamBreak;
 
 public class IO_IntakeReal implements IO_IntakeBase {
@@ -24,12 +27,33 @@ public class IO_IntakeReal implements IO_IntakeBase {
 		armMotor = new SparkMax(21, MotorType.kBrushless);
 		wheelMotor = new SparkMax(22, MotorType.kBrushless);
 		toggleSensor = new IRBeamBreak(0);
+
+		SparkMaxConfig sparkMaxConfig = new SparkMaxConfig();
+		sparkMaxConfig.encoder.positionConversionFactor(5.142);
+		sparkMaxConfig.inverted(true);
+
+		ClosedLoopConfig closedLoopConfig = new ClosedLoopConfig();
+
+		closedLoopConfig.p(10);
+
+		closedLoopConfig.i(0);
+		closedLoopConfig.d(0);
+
+		sparkMaxConfig.apply(closedLoopConfig);
+
+		armMotor.configure(
+				sparkMaxConfig,
+				SparkBase.ResetMode.kNoResetSafeParameters,
+				SparkBase.PersistMode.kPersistParameters);
+
+		armMotor.getEncoder().setPosition(0);
 	}
 
 	@Override
 	public void updateInputs(IntakeInputs inputs) {
 
 		inputs.armAngleDegrees = armMotor.getEncoder().getPosition();
+		inputs.armMotorVoltage = armMotor.getAppliedOutput();
 		inputs.armMotorCurrent = armMotor.getOutputCurrent();
 		inputs.wheelMotorCurrent = wheelMotor.getOutputCurrent();
 		inputs.wheelRPM = wheelMotor.getEncoder().getVelocity();
@@ -39,7 +63,7 @@ public class IO_IntakeReal implements IO_IntakeBase {
 
 	@Override
 	public void setArmAngle(double angle) {
-		armMotor.getClosedLoopController().setReference(angle, ControlType.kMAXMotionPositionControl);
+		armMotor.getClosedLoopController().setReference(angle, ControlType.kPosition);
 	}
 
 	@Override
