@@ -9,40 +9,22 @@ package frc.robot.elevator;
 
 import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class IO_ElevatorReal implements IO_ElevatorBase {
 
 	private final TalonFX leftMotor_10;
 	private final TalonFX rightMotor_9;
-	private final PositionVoltage motorRequest;
-	private double lastSetpointM;
-
-	// Motion Profile objects
-	private final TrapezoidProfile profile;
-	private TrapezoidProfile.State setpoint;
-	private TrapezoidProfile.State goal;
+	private final MotionMagicVoltage motorRequest;
 
 	public IO_ElevatorReal() {
 		leftMotor_10 = new TalonFX(10, "canivore");
 		rightMotor_9 = new TalonFX(9, "canivore");
-
-		lastSetpointM = 0.0;
-
-		profile =
-				new TrapezoidProfile(
-						new TrapezoidProfile.Constraints(2500, 7000) // 2 m/s velocity, 6 m/s² acceleration
-						);
-
-		setpoint = new TrapezoidProfile.State(0, 0);
-		goal = new TrapezoidProfile.State(0, 0);
-
 		var motorConfigs = new TalonFXConfiguration();
 
 		/*
@@ -134,26 +116,70 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 			* Current draw within limits
 		*/
 
-		// Apply slot 0 configs
+		// Set slot 0 configs
 		var slot0Configs = motorConfigs.Slot0;
-		slot0Configs.kS = 0.35; // Static friction compensation (V) // 0.06
-		slot0Configs.kV = 0; // Velocity feed forward (V per m/s) // 0
-		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²) // 0
+		slot0Configs.kS = 0.35; // Static friction compensation (V)
 
-		slot0Configs.kP = 0.052; // Position error gain (V per meter) // 0.05
-		slot0Configs.kI = 0; // Integral gain for steady-state error // 0
-		slot0Configs.kD = 0; // Derivative gain for damping // 0
+		// TODO: Set these values, most likely needed for motion magic to work!
+		slot0Configs.kV = 0; // Velocity feed forward (V per m/s)
+		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²)
 
-		slot0Configs.kG = 0.22; // Gravity compensation // 0.22
+		slot0Configs.kP = 0.052; // Position error gain (V per meter)
+		slot0Configs.kI = 0; // Integral gain for steady-state error
+		slot0Configs.kD = 0; // Derivative gain for damping
+
+		slot0Configs.kG = 0.22; // Gravity compensation
 		slot0Configs.GravityType = GravityTypeValue.Elevator_Static;
+
+		// Set motion magic
+		var motionMagicConfigs = motorConfigs.MotionMagic;
+		motionMagicConfigs.MotionMagicCruiseVelocity = 500; // mm/s
+		motionMagicConfigs.MotionMagicAcceleration = 1000; // mm/s^2
+		motionMagicConfigs.MotionMagicJerk = 2000; // mm/s^2
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2350; // Set to max height in
-		// milimeters (3ft for testing)
-		// motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-		// motorConfigs.SoftwarzeLimitSwitch.ReverseSoftLimitThreshold = 0.0;
+		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2350; // Set to max height in mm
+		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
+		// Create motor request at default position
+		motorRequest = new MotionMagicVoltage(0).withSlot(0);
+	}
+
+	@Override
+	public void updateInputs(ElevatorInputs inputs) {
+		inputs.heightM = leftMotor_10.getPosition().getValueAsDouble() / 1000;
+		inputs.velocityMPS = leftMotor_10.getVelocity().getValueAsDouble() / 1000;
+		inputs.accelerationMPS2 = leftMotor_10.getAcceleration().getValueAsDouble() / 1000;
+		inputs.setpointM = motorRequest.Position;
+		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
+		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
+		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
+		inputs.rightMotorCurrent = rightMotor_9.getSupplyCurrent().getValueAsDouble();
+		inputs.leftMotorPower = leftMotor_10.getDutyCycle().getValueAsDouble();
+		inputs.rightMotorPower = rightMotor_9.getDutyCycle().getValueAsDouble();
+	}
+
+	@Override
+	public void setPositionM(double newPositionM) {
+		// Convert to millimeters and update last setpoint
+		double targetMM = newPositionM * 1000;
+
+		// Update motor request
+		motorRequest.withPosition(targetMM);
+
+		leftMotor_10.setControl(motorRequest);
+		rightMotor_9.setControl(motorRequest);
+	}
+
+	@Override
+	public void setVoltage(double voltage) {
+		leftMotor_10.setVoltage(voltage);
+		rightMotor_9.setVoltage(voltage);
+	}
+
+	public void setupMotors(TalonFXConfiguration motorConfigs) {
 		// Needs CCW+ to bring elevator up
 		var rightMotorConfig = motorConfigs;
 		rightMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -180,50 +206,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		leftMotor_10.setNeutralMode(NeutralModeValue.Brake);
 		rightMotor_9.setNeutralMode(NeutralModeValue.Brake);
 
-		// Create motor request
-		motorRequest = new PositionVoltage(0).withSlot(0);
-
 		// Reset encoder to zero
 		leftMotor_10.setPosition(0);
 		rightMotor_9.setPosition(0);
-	}
-
-	@Override
-	public void updateInputs(ElevatorInputs inputs) {
-		// Calculate next profile setpoint
-		setpoint = profile.calculate(0.020, setpoint, goal);
-
-		// Update motor positions with profile values
-		motorRequest.Position = setpoint.position;
-		motorRequest.Velocity = setpoint.velocity;
-
-		leftMotor_10.setControl(motorRequest);
-		rightMotor_9.setControl(motorRequest);
-
-		// Update inputs
-		inputs.heightM = leftMotor_10.getPosition().getValueAsDouble() / 1000;
-		inputs.velocityMPS = leftMotor_10.getVelocity().getValueAsDouble() / 1000;
-		inputs.accelerationMPS2 = leftMotor_10.getAcceleration().getValueAsDouble() / 1000;
-		inputs.setpointM = lastSetpointM / 1000;
-		inputs.leftMotorVoltage = leftMotor_10.getMotorVoltage().getValueAsDouble();
-		inputs.rightMotorVoltage = rightMotor_9.getMotorVoltage().getValueAsDouble();
-		inputs.leftMotorCurrent = leftMotor_10.getSupplyCurrent().getValueAsDouble();
-		inputs.rightMotorCurrent = rightMotor_9.getSupplyCurrent().getValueAsDouble();
-		inputs.leftMotorPower = leftMotor_10.getDutyCycle().getValueAsDouble();
-		inputs.rightMotorPower = rightMotor_9.getDutyCycle().getValueAsDouble();
-	}
-
-	@Override
-	public void setPositionM(double newPositionM) {
-		// Convert to millimeters and update goal state
-		double targetMM = newPositionM * 1000;
-		goal = new TrapezoidProfile.State(targetMM, 0);
-		lastSetpointM = targetMM;
-	}
-
-	@Override
-	public void setVoltage(double voltage) {
-		leftMotor_10.setVoltage(voltage);
-		rightMotor_9.setVoltage(voltage);
 	}
 }
