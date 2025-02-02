@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.CMD_Drive;
 import frc.robot.commands.CMD_ElevatorDownCoral;
 import frc.robot.commands.CMD_ElevatorUpCoral;
+import frc.robot.commands.CMD_Idle;
+import frc.robot.commands.CMD_IntakeCoral;
 import frc.robot.commands.CMD_SetElevator;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
@@ -116,14 +118,10 @@ public class RobotContainer {
 		operatorController.povDown().onTrue(new CMD_ElevatorDownCoral(superstructure));
 
 		// Lower elevator to stowed position
-		operatorController
-				.b()
-				.onTrue(new CMD_SetElevator(elevator, led, GlobalRobotState.State.STOWED));
+		operatorController.b().onTrue(new CMD_Idle(superstructure));
 
 		// Pick up coral from the Source
-		operatorController
-				.a()
-				.onTrue(new CMD_SetElevator(elevator, led, GlobalRobotState.State.CORAL_STATION));
+		operatorController.a().onTrue(new CMD_IntakeCoral(superstructure));
 
 		// Climb
 		operatorController

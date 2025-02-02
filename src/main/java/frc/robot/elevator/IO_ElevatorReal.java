@@ -133,9 +133,9 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Set motion magic
 		var motionMagicConfigs = motorConfigs.MotionMagic;
-		motionMagicConfigs.MotionMagicCruiseVelocity = 500; // mm/s
-		motionMagicConfigs.MotionMagicAcceleration = 1000; // mm/s^2
-		motionMagicConfigs.MotionMagicJerk = 2000; // mm/s^2
+		motionMagicConfigs.MotionMagicCruiseVelocity = 2500; // mm/s
+		motionMagicConfigs.MotionMagicAcceleration = 4000; // mm/s^2
+		motionMagicConfigs.MotionMagicJerk = 6000; // mm/s^2
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;

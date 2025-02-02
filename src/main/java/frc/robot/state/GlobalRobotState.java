@@ -10,18 +10,18 @@ package frc.robot.state;
 public class GlobalRobotState {
 
 	public enum State {
-		STOWED(0.1, -15, 0.0),
+		STOWED(0.05, -15, 0.0),
 		STOWED_CORAL(0.1, -15, 0.0),
-		CORAL_STATION(1.0, 120, -0.3),
+		CORAL_STATION(1.0, 120, 0.8),
 		ALGAE_GROUND(0.1, 45, -1.0),
-		ALGAE_REMOVAL(0.0, 85, 0.8),
-		ALGAE_PROCESSOR(0.1, 85, 1.0),
-		ALGAE_BARGE(2.35, 135, 0.25),
-		L1_SCORING(0.5, 30, 0.8),
+		ALGAE_REMOVAL(0.0, 85, -0.8),
+		ALGAE_PROCESSOR(0.1, 85, -1.0),
+		ALGAE_BARGE(2.35, 135, -0.25),
+		L1_SCORING(0.5, 30, -0.8),
 		L2_SCORING(0.8, 0, 0.0),
 		L3_SCORING(1.2, 0, 0.0),
-		L2_L3_SCORING(0.0, 45, 0.8),
-		L4_SCORING(1.85, 30, 0.8),
+		L2_L3_SCORING(0.0, 45, -0.8),
+		L4_SCORING(1.85, 30, -0.8),
 		CLIMB(0.5, 0, 0.0);
 
 		private final double heightM;
