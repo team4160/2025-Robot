@@ -8,7 +8,7 @@
 package frc.robot.elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.misc.RobotState;
+import frc.robot.state.GlobalRobotState;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
@@ -17,7 +17,7 @@ public class SUB_Elevator extends SubsystemBase {
 
 	private final IO_ElevatorBase.ElevatorInputs inputs = new IO_ElevatorBase.ElevatorInputs();
 
-	private RobotState.State currentState = RobotState.State.STOWED;
+	private GlobalRobotState.State localState = GlobalRobotState.State.STOWED;
 
 	public SUB_Elevator(IO_ElevatorBase io) {
 		this.io = io;
@@ -27,7 +27,7 @@ public class SUB_Elevator extends SubsystemBase {
 	public void periodic() {
 
 		// Update state
-		io.setPositionM(currentState.getHeightM());
+		io.setPositionM(localState.getHeightM());
 
 		// Update inputs
 		io.updateInputs(inputs);
@@ -36,11 +36,11 @@ public class SUB_Elevator extends SubsystemBase {
 		Logger.processInputs("Elevator", inputs);
 	}
 
-	public void updateState(RobotState.State newState) {
-		currentState = newState;
+	public void updateLocalState(GlobalRobotState.State newLocalState) {
+		localState = newLocalState;
 	}
 
-	public RobotState.State getCurrentState() {
-		return currentState;
+	public GlobalRobotState.State getCurrentLocalState() {
+		return localState;
 	}
 }

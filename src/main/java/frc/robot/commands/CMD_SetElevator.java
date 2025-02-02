@@ -9,15 +9,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.elevator.SUB_Elevator;
-import frc.robot.misc.RobotState;
 import frc.robot.misc.SUB_Led;
+import frc.robot.state.GlobalRobotState;
 
 public class CMD_SetElevator extends Command {
 	private final SUB_Elevator elevator;
 	private final SUB_Led led;
-	private final RobotState.State state;
+	private final GlobalRobotState.State state;
 
-	public CMD_SetElevator(SUB_Elevator elevator, SUB_Led led, RobotState.State state) {
+	public CMD_SetElevator(SUB_Elevator elevator, SUB_Led led, GlobalRobotState.State state) {
 		this.elevator = elevator;
 		this.led = led;
 		this.state = state;
@@ -26,8 +26,8 @@ public class CMD_SetElevator extends Command {
 
 	@Override
 	public void initialize() {
-		elevator.updateState(state);
-		led.updateState(state);
+		elevator.updateLocalState(state);
+		led.updateLocalState(state);
 	}
 
 	@Override

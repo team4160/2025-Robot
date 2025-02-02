@@ -12,11 +12,14 @@ import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.state.GlobalRobotState;
 
 public class SUB_Led extends SubsystemBase {
 	private CANdle candle;
 	private static final int LED_COUNT = 300;
 	private static final int DEFAULT_ANIMATION_SLOT = 0;
+
+	private GlobalRobotState.State localState = GlobalRobotState.State.STOWED;
 
 	public SUB_Led() {
 		candle = new CANdle(11, "canivore");
@@ -35,8 +38,8 @@ public class SUB_Led extends SubsystemBase {
 		candle.setLEDs(r, g, b, 0, 0, LED_COUNT);
 	}
 
-	public void updateState(RobotState.State newState) {
-		switch (newState) {
+	public void updateLocalState(GlobalRobotState.State newLocalState) {
+		switch (localState) {
 			case STOWED_CORAL:
 				setFullStripColor(255, 255, 255);
 				break;
@@ -67,5 +70,9 @@ public class SUB_Led extends SubsystemBase {
 				setFullStripColor(255, 0, 0);
 				break;
 		}
+	}
+
+	public GlobalRobotState.State getCurrentLocalState() {
+		return localState;
 	}
 }

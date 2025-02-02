@@ -143,6 +143,9 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 
+		// Setup both motors
+		setupMotors(motorConfigs);
+
 		// Create motor request at default position
 		motorRequest = new MotionMagicVoltage(0).withSlot(0);
 	}

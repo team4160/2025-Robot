@@ -8,40 +8,37 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.elevator.SUB_Elevator;
-import frc.robot.misc.RobotState;
-import frc.robot.misc.SUB_Led;
+import frc.robot.state.GlobalRobotState;
+import frc.robot.state.Superstructure;
 
 public class CMD_ElevatorUpCoral extends Command {
-	private final SUB_Elevator elevator;
-	private final SUB_Led led;
+	private final Superstructure superstructure;
 
-	public CMD_ElevatorUpCoral(SUB_Elevator elevator, SUB_Led led) {
-		this.elevator = elevator;
-		this.led = led;
-
-		addRequirements(elevator);
+	public CMD_ElevatorUpCoral(Superstructure superstructure) {
+		this.superstructure = superstructure;
+		addRequirements(superstructure);
 	}
 
 	@Override
 	public void initialize() {
 
-		RobotState.State currentState = elevator.getCurrentState();
+		// Gets current robot state
+		GlobalRobotState.State currentState = superstructure.getCurrentGlobalState();
 
-		RobotState.State newState = RobotState.State.L1_SCORING;
+		// Create new state for robot to go to. Default is L1_SCORING
+		GlobalRobotState.State newState = GlobalRobotState.State.L1_SCORING;
 
-		if (currentState == RobotState.State.L1_SCORING) {
-			newState = RobotState.State.L2_SCORING;
+		if (currentState == GlobalRobotState.State.L1_SCORING) {
+			newState = GlobalRobotState.State.L2_SCORING;
 
-		} else if (currentState == RobotState.State.L2_SCORING) {
-			newState = RobotState.State.L3_SCORING;
+		} else if (currentState == GlobalRobotState.State.L2_SCORING) {
+			newState = GlobalRobotState.State.L3_SCORING;
 
-		} else if (currentState == RobotState.State.L3_SCORING) {
-			newState = RobotState.State.L4_SCORING;
+		} else if (currentState == GlobalRobotState.State.L3_SCORING) {
+			newState = GlobalRobotState.State.L4_SCORING;
 		}
 
-		elevator.updateState(newState);
-		led.updateState(newState);
+		superstructure.updateGlobalState(newState);
 	}
 
 	@Override

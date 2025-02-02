@@ -8,36 +8,35 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.elevator.SUB_Elevator;
-import frc.robot.misc.RobotState;
+import frc.robot.state.GlobalRobotState;
+import frc.robot.state.Superstructure;
 
 public class CMD_ElevatorDownAlgae extends Command {
-	private final SUB_Elevator elevator;
+	private final Superstructure superstructure;
 
-	public CMD_ElevatorDownAlgae(SUB_Elevator elevator) {
-		this.elevator = elevator;
-
-		addRequirements(elevator);
+	public CMD_ElevatorDownAlgae(Superstructure superstructure) {
+		this.superstructure = superstructure;
+		addRequirements(superstructure);
 	}
 
 	@Override
 	public void initialize() {
 
-		RobotState.State currentState = elevator.getCurrentState();
+		GlobalRobotState.State currentState = superstructure.getCurrentGlobalState();
 
-		RobotState.State newState = RobotState.State.L1_SCORING;
+		GlobalRobotState.State newState = GlobalRobotState.State.L1_SCORING;
 
-		if (currentState == RobotState.State.L4_SCORING) {
-			newState = RobotState.State.L3_SCORING;
+		if (currentState == GlobalRobotState.State.L4_SCORING) {
+			newState = GlobalRobotState.State.L3_SCORING;
 
-		} else if (currentState == RobotState.State.L3_SCORING) {
-			newState = RobotState.State.L2_SCORING;
+		} else if (currentState == GlobalRobotState.State.L3_SCORING) {
+			newState = GlobalRobotState.State.L2_SCORING;
 
-		} else if (currentState == RobotState.State.L2_SCORING) {
-			newState = RobotState.State.L1_SCORING;
+		} else if (currentState == GlobalRobotState.State.L2_SCORING) {
+			newState = GlobalRobotState.State.L1_SCORING;
 		}
 
-		elevator.updateState(newState);
+		superstructure.updateGlobalState(newState);
 	}
 
 	@Override

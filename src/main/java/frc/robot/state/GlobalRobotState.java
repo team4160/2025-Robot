@@ -5,9 +5,9 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.misc;
+package frc.robot.state;
 
-public class RobotState {
+public class GlobalRobotState {
 
 	public enum State {
 		STOWED(0.1, -15, 0.0),

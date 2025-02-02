@@ -34,7 +34,7 @@ public class IO_IntakeReal implements IO_IntakeBase {
 
 		ClosedLoopConfig closedLoopConfig = new ClosedLoopConfig();
 
-		closedLoopConfig.p(10);
+		closedLoopConfig.p(0);
 
 		closedLoopConfig.i(0);
 		closedLoopConfig.d(0);

@@ -21,8 +21,9 @@ import frc.robot.elevator.IO_ElevatorReal;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.IO_IntakeReal;
 import frc.robot.intake.SUB_Intake;
-import frc.robot.misc.RobotState;
 import frc.robot.misc.SUB_Led;
+import frc.robot.state.GlobalRobotState;
+import frc.robot.state.Superstructure;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.vision.IO_VisionReal;
@@ -41,6 +42,7 @@ public class RobotContainer {
 	private final SUB_Intake intake;
 	private final SUB_Vision vision;
 	private final SUB_Elevator elevator;
+	private final Superstructure superstructure;
 
 	private final SUB_Led led;
 
@@ -50,20 +52,22 @@ public class RobotContainer {
 
 		//	webServer = new WebServer();
 
+		// Controllers
 		driverController = new CommandXboxController(0); // port 0
 		globalInputMap = InputConstants.TX16S_MAIN; // Set the global input map to Xbox Controller
-
 		operatorController = new CommandXboxController(1);
 
+		// Driving Sybsystems
 		vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
-
 		swerve = new SUB_Swerve(new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 
+		// Mechanisms Subsystems
 		intake = new SUB_Intake(new IO_IntakeReal());
-
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
-
 		led = new SUB_Led();
+
+		// Superstructure
+		superstructure = new Superstructure(intake, elevator, led);
 
 		configureDefaultCommands();
 		configureWebserverCommands();
@@ -107,26 +111,24 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Move elevator up/down for coral scoring
-		operatorController.povUp().onTrue(new CMD_ElevatorUpCoral(elevator, led));
+		operatorController.povUp().onTrue(new CMD_ElevatorUpCoral(superstructure));
 
-		operatorController.povDown().onTrue(new CMD_ElevatorDownCoral(elevator, led));
+		operatorController.povDown().onTrue(new CMD_ElevatorDownCoral(superstructure));
 
 		// Lower elevator to stowed position
-		operatorController.b().onTrue(new CMD_SetElevator(elevator, led, RobotState.State.STOWED));
-
-		operatorController.a().onTrue(intake.setState(SUB_Intake.State.CORAL_STATION));
-
-		operatorController.b().onTrue(intake.setState(SUB_Intake.State.STOWED));
+		operatorController
+				.b()
+				.onTrue(new CMD_SetElevator(elevator, led, GlobalRobotState.State.STOWED));
 
 		// Pick up coral from the Source
 		operatorController
 				.a()
-				.onTrue(new CMD_SetElevator(elevator, led, RobotState.State.CORAL_STATION));
+				.onTrue(new CMD_SetElevator(elevator, led, GlobalRobotState.State.CORAL_STATION));
 
 		// Climb
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_SetElevator(elevator, led, RobotState.State.CLIMB));
+				.onTrue(new CMD_SetElevator(elevator, led, GlobalRobotState.State.CLIMB));
 
 		// Aim at 0,0 for testing
 		// driverController.a().onTrue(new CMD_AimAtPose(swerve, new Pose2d(), 0.1));
