@@ -5,23 +5,26 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.generic;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.state.GlobalRobotState;
-import frc.robot.state.Superstructure;
+import frc.robot.superstructure.SUB_Superstructure;
+import frc.robot.superstructure.SuperstructureState;
 
-public class CMD_IntakeCoral extends Command {
-	private final Superstructure superstructure;
+public class CMD_Superstructure extends Command {
+	private final SUB_Superstructure superstructure;
+	private final SuperstructureState.State newSuperstructureState;
 
-	public CMD_IntakeCoral(Superstructure superstructure) {
+	public CMD_Superstructure(
+			SUB_Superstructure superstructure, SuperstructureState.State newSuperstructureState) {
 		this.superstructure = superstructure;
+		this.newSuperstructureState = newSuperstructureState;
 		addRequirements(superstructure);
 	}
 
 	@Override
 	public void initialize() {
-		superstructure.updateGlobalState(GlobalRobotState.State.CORAL_STATION);
+		superstructure.updateSuperstructureState(newSuperstructureState);
 	}
 
 	@Override

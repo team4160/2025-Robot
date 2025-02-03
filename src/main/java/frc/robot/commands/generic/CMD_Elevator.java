@@ -5,19 +5,19 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.generic;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.misc.SUB_Led;
-import frc.robot.state.GlobalRobotState;
+import frc.robot.superstructure.SuperstructureState;
 
-public class CMD_SetElevator extends Command {
+public class CMD_Elevator extends Command {
 	private final SUB_Elevator elevator;
 	private final SUB_Led led;
-	private final GlobalRobotState.State state;
+	private final SuperstructureState.State state;
 
-	public CMD_SetElevator(SUB_Elevator elevator, SUB_Led led, GlobalRobotState.State state) {
+	public CMD_Elevator(SUB_Elevator elevator, SUB_Led led, SuperstructureState.State state) {
 		this.elevator = elevator;
 		this.led = led;
 		this.state = state;

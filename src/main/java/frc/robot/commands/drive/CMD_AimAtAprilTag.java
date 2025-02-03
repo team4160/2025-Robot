@@ -5,42 +5,43 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.drive;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.swerve.SUB_Swerve;
 
-public class CMD_AimAtPose extends Command {
+public class CMD_AimAtAprilTag extends Command {
 	private final SUB_Swerve swerve;
-	private final Pose2d targetPose;
+	private final int tagId;
 	private final double tolerance;
 
 	/**
-	 * Creates a command to aim the robot at a specific pose on the field.
+	 * Creates a command to aim the robot at a specific AprilTag.
 	 *
 	 * @param swerve The swerve drive subsystem
-	 * @param targetPose The pose to aim at
+	 * @param tagId The ID of the AprilTag to aim at
 	 * @param tolerance Tolerance in degrees for considering the aim complete
 	 */
-	public CMD_AimAtPose(SUB_Swerve swerve, Pose2d targetPose, double tolerance) {
+	public CMD_AimAtAprilTag(SUB_Swerve swerve, int tagId, double tolerance) {
 		this.swerve = swerve;
-		this.targetPose = targetPose;
+		this.tagId = tagId;
 		this.tolerance = tolerance;
 		addRequirements(swerve);
 	}
 
 	@Override
 	public void execute() {
-		// Calculate target yaw based on relative position to target pose
-		Translation2d relativeTrl = targetPose.relativeTo(swerve.getPose()).getTranslation();
-		Rotation2d targetYaw =
-				new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerve.getHeading());
+		Rotation2d targetYaw = swerve.getAprilTagYaw(tagId);
 
-		// Calculate rotation to face the target
+		// If target yaw is null, tag wasn't found - stop rotating
+		if (targetYaw == null) {
+			swerve.drive(new ChassisSpeeds());
+			return;
+		}
+
+		// Calculate rotation to face the tag
 		double rotationVelocity =
 				swerve
 						.getSwerveController()
@@ -55,9 +56,12 @@ public class CMD_AimAtPose extends Command {
 
 	@Override
 	public boolean isFinished() {
-		Translation2d relativeTrl = targetPose.relativeTo(swerve.getPose()).getTranslation();
-		Rotation2d targetYaw =
-				new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerve.getHeading());
+		Rotation2d targetYaw = swerve.getAprilTagYaw(tagId);
+
+		// Finish if tag not found or within tolerance
+		if (targetYaw == null) {
+			return true;
+		}
 
 		return Math.abs(targetYaw.minus(swerve.getHeading()).getDegrees()) < tolerance;
 	}

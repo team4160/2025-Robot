@@ -8,7 +8,7 @@
 package frc.robot.intake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.state.GlobalRobotState;
+import frc.robot.superstructure.SuperstructureState;
 import org.littletonrobotics.junction.Logger;
 
 public class SUB_Intake extends SubsystemBase {
@@ -17,7 +17,7 @@ public class SUB_Intake extends SubsystemBase {
 
 	private final IO_IntakeBase.IntakeInputs inputs = new IO_IntakeBase.IntakeInputs();
 
-	private GlobalRobotState.State localState = GlobalRobotState.State.STOWED;
+	private SuperstructureState.State localState = SuperstructureState.State.STOWED;
 
 	public SUB_Intake(IO_IntakeBase io) {
 		this.io = io;
@@ -36,11 +36,11 @@ public class SUB_Intake extends SubsystemBase {
 		Logger.processInputs("Intake", inputs);
 	}
 
-	public void updateLocalState(GlobalRobotState.State newLocalState) {
+	public void updateLocalState(SuperstructureState.State newLocalState) {
 		localState = newLocalState;
 	}
 
-	public GlobalRobotState.State getCurrentLocalState() {
+	public SuperstructureState.State getCurrentLocalState() {
 		return localState;
 	}
 }

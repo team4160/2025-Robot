@@ -12,20 +12,19 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.CMD_Drive;
-import frc.robot.commands.CMD_ElevatorDownCoral;
-import frc.robot.commands.CMD_ElevatorUpCoral;
-import frc.robot.commands.CMD_Idle;
-import frc.robot.commands.CMD_IntakeCoral;
-import frc.robot.commands.CMD_SetElevator;
+import frc.robot.commands.coral.CMD_ElevatorCoral;
+import frc.robot.commands.coral.CMD_IntakeCoral;
+import frc.robot.commands.drive.CMD_Drive;
+import frc.robot.commands.generic.CMD_Elevator;
+import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.IO_IntakeReal;
 import frc.robot.intake.SUB_Intake;
 import frc.robot.misc.SUB_Led;
-import frc.robot.state.GlobalRobotState;
-import frc.robot.state.Superstructure;
+import frc.robot.superstructure.SUB_Superstructure;
+import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.vision.IO_VisionReal;
@@ -44,7 +43,7 @@ public class RobotContainer {
 	private final SUB_Intake intake;
 	private final SUB_Vision vision;
 	private final SUB_Elevator elevator;
-	private final Superstructure superstructure;
+	private final SUB_Superstructure superstructure;
 
 	private final SUB_Led led;
 
@@ -69,7 +68,7 @@ public class RobotContainer {
 		led = new SUB_Led();
 
 		// Superstructure
-		superstructure = new Superstructure(intake, elevator, led);
+		superstructure = new SUB_Superstructure(intake, elevator, led);
 
 		configureDefaultCommands();
 		configureWebserverCommands();
@@ -113,12 +112,12 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Move elevator up/down for coral scoring
-		operatorController.povUp().onTrue(new CMD_ElevatorUpCoral(superstructure));
+		operatorController.povUp().onTrue(new CMD_ElevatorCoral(superstructure, true));
 
-		operatorController.povDown().onTrue(new CMD_ElevatorDownCoral(superstructure));
+		operatorController.povDown().onTrue(new CMD_ElevatorCoral(superstructure, false));
 
 		// Lower elevator to stowed position
-		operatorController.b().onTrue(new CMD_Idle(superstructure));
+		operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.State.STOWED));
 
 		// Pick up coral from the Source
 		operatorController.a().onTrue(new CMD_IntakeCoral(superstructure));
@@ -126,7 +125,7 @@ public class RobotContainer {
 		// Climb
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_SetElevator(elevator, led, GlobalRobotState.State.CLIMB));
+				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.State.CLIMB));
 
 		// Aim at 0,0 for testing
 		// driverController.a().onTrue(new CMD_AimAtPose(swerve, new Pose2d(), 0.1));
