@@ -5,15 +5,19 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.commands.coral;
+package frc.robot.commands.generic;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 
-public class CMD_IntakeCoral extends SequentialCommandGroup {
-	public CMD_IntakeCoral(SUB_Superstructure superstructure) {
+public class CMD_Intake extends SequentialCommandGroup {
+	public CMD_Intake(SUB_Superstructure superstructure) {
+
+		//boolean isAtAnyCoralState = superstructure.getCurrentSuperstructureState();
+
+
 		addCommands(
 				// Move to Coral Station state
 				new CMD_Superstructure(superstructure, SuperstructureState.State.CORAL_STATION),

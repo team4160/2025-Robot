@@ -17,7 +17,7 @@ public class SUB_Elevator extends SubsystemBase {
 
 	private final IO_ElevatorBase.ElevatorInputs inputs = new IO_ElevatorBase.ElevatorInputs();
 
-	private SuperstructureState.State localState = SuperstructureState.State.STOWED;
+	private SuperstructureState.State localState = SuperstructureState.State.IDLE;
 
 	public SUB_Elevator(IO_ElevatorBase io) {
 		this.io = io;

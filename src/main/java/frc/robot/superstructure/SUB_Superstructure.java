@@ -10,11 +10,11 @@ package frc.robot.superstructure;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.SUB_Intake;
-import frc.robot.misc.SUB_Led;
+import frc.robot.util.SUB_Led;
 
 public class SUB_Superstructure extends SubsystemBase {
 
-	private SuperstructureState.State currentSuperstructureState = SuperstructureState.State.STOWED;
+	private SuperstructureState.State currentSuperstructureState = SuperstructureState.State.IDLE;
 
 	private SUB_Intake intake;
 	private SUB_Elevator elevator;

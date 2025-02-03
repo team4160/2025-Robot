@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package frc.robot.misc;
+package frc.robot.util;
 
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
@@ -19,7 +19,7 @@ public class SUB_Led extends SubsystemBase {
 	private static final int LED_COUNT = 300;
 	private static final int DEFAULT_ANIMATION_SLOT = 0;
 
-	private SuperstructureState.State localState = SuperstructureState.State.STOWED;
+	private SuperstructureState.State localState = SuperstructureState.State.IDLE;
 
 	public SUB_Led() {
 		candle = new CANdle(11, "canivore");
@@ -40,10 +40,7 @@ public class SUB_Led extends SubsystemBase {
 
 	public void updateLocalState(SuperstructureState.State newLocalState) {
 		switch (localState) {
-			case STOWED_CORAL:
-				setFullStripColor(255, 255, 255);
-				break;
-			case STOWED:
+			case IDLE:
 				setFullStripColor(255, 0, 0);
 				break;
 			case L1_SCORING:

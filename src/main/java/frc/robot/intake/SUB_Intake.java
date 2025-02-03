@@ -17,7 +17,7 @@ public class SUB_Intake extends SubsystemBase {
 
 	private final IO_IntakeBase.IntakeInputs inputs = new IO_IntakeBase.IntakeInputs();
 
-	private SuperstructureState.State localState = SuperstructureState.State.STOWED;
+	private SuperstructureState.State localState = SuperstructureState.State.IDLE;
 
 	public SUB_Intake(IO_IntakeBase io) {
 		this.io = io;

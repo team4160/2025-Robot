@@ -13,13 +13,13 @@ import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 
 public class CMD_IntakeAlgae extends SequentialCommandGroup {
-    public CMD_IntakeAlgae(SUB_Superstructure superstructure) {
-        addCommands(
-            // Move to Algae Ground state
-            new CMD_Superstructure(superstructure, SuperstructureState.State.ALGAE_GROUND),
+	public CMD_IntakeAlgae(SUB_Superstructure superstructure) {
+		addCommands(
+				// Move to Algae Ground state
+				new CMD_Superstructure(superstructure, SuperstructureState.State.ALGAE_GROUND),
 
-			// TODO: Auto idle intake after algae is NOT sensed by the sensor and current limit is reached
-            new CMD_Superstructure(superstructure, SuperstructureState.State.STOWED)
-        );
-    }
+				// TODO: Auto idle intake after algae is NOT sensed by the sensor and current limit is
+				// reached
+				new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE));
+	}
 }

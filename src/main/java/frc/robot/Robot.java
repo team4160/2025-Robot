@@ -10,12 +10,10 @@ package frc.robot;
 import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.BuildConstants;
 import frc.robot.constants.RobotConstants;
-import frc.robot.util.AlertManager;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -80,13 +78,7 @@ public class Robot extends LoggedRobot {
 	}
 
 	@Override
-	public void disabledInit() {
-		// Check battery voltage when disabled
-		double voltage = RobotController.getBatteryVoltage();
-		if (voltage <= RobotConstants.BATTERY_VOLTAGE_CRITICAL) {
-			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY_ON_END, true);
-		}
-	}
+	public void disabledInit() {}
 
 	@Override
 	public void disabledPeriodic() {}
@@ -113,12 +105,6 @@ public class Robot extends LoggedRobot {
 	public void teleopInit() {
 		if (m_autonomousCommand != null) {
 			m_autonomousCommand.cancel();
-		}
-
-		// Check battery voltage at teleop start
-		double voltage = RobotController.getBatteryVoltage();
-		if (voltage <= RobotConstants.BATTERY_VOLTAGE_CRITICAL) {
-			AlertManager.setAlert(AlertManager.Alerts.CRITICAL_BATTERY_ON_START, true);
 		}
 	}
 

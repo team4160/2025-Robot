@@ -27,8 +27,8 @@ public class CMD_ElevatorAlgae extends SequentialCommandGroup {
 			// Elevator Up Logic for Algae states
 			switch (currentState) {
 				case ALGAE_GROUND:
-					return SuperstructureState.State.ALGAE_REMOVAL;
-				case ALGAE_REMOVAL:
+					return SuperstructureState.State.ALGAE_L2;
+				case ALGAE_L2:
 					return SuperstructureState.State.ALGAE_PROCESSOR;
 				case ALGAE_PROCESSOR:
 					return SuperstructureState.State.ALGAE_BARGE;
@@ -41,8 +41,8 @@ public class CMD_ElevatorAlgae extends SequentialCommandGroup {
 				case ALGAE_BARGE:
 					return SuperstructureState.State.ALGAE_PROCESSOR;
 				case ALGAE_PROCESSOR:
-					return SuperstructureState.State.ALGAE_REMOVAL;
-				case ALGAE_REMOVAL:
+					return SuperstructureState.State.ALGAE_L2;
+				case ALGAE_L2:
 					return SuperstructureState.State.ALGAE_GROUND;
 				default:
 					return currentState;

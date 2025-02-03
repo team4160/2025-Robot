@@ -60,4 +60,14 @@ public enum InputConstants {
 		this.strafeInverted = strafeInverted;
 		this.rotationInverted = rotationInverted;
 	}
+
+	// Operator Controller Constants
+	public static final class OperatorController {
+		// Button Mappings
+		public static final int ELEVATOR_CORAL_UP_POV = 0;
+		public static final int ELEVATOR_CORAL_DOWN_POV = 180;
+		public static final int STOWED_BUTTON = 2; // B Button
+		public static final int INTAKE_CORAL_BUTTON = 1; // A Button
+		public static final int CLIMB_BUTTON = 6; // Right Bumper
+	}
 }
