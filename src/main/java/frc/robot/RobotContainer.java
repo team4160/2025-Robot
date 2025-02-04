@@ -31,7 +31,6 @@ import frc.robot.superstructure.SuperstructureState;
 import frc.robot.swerve.IO_SwerveReal;
 import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.SUB_Led;
-import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.IO_VisionSim;
 import frc.robot.vision.SUB_Vision;
 import frc.robot.webserver.WebServer;
@@ -74,7 +73,7 @@ public class RobotContainer {
 
 	private void initializeSubsystems() {
 		webServer = new WebServer();
-		vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
+		vision = new SUB_Vision(new IO_VisionSim());
 		swerve = new SUB_Swerve(new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());

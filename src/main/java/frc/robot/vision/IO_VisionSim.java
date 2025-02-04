@@ -37,7 +37,7 @@ public class IO_VisionSim implements IO_VisionBase {
 	private final AprilTagFieldLayout fieldLayout;
 
 	public IO_VisionSim() {
-		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 		visionSim = new VisionSystemSim("Vision");
 		visionSim.addAprilTags(fieldLayout);
 
