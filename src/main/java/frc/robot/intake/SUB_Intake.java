@@ -18,6 +18,7 @@ public class SUB_Intake extends SubsystemBase {
 	private final IO_IntakeBase.IntakeInputs inputs = new IO_IntakeBase.IntakeInputs();
 
 	private SuperstructureState.State localState = SuperstructureState.State.IDLE;
+	private double localWheelSpeed = SuperstructureState.State.IDLE.getSpeed();
 
 	public SUB_Intake(IO_IntakeBase io) {
 		this.io = io;
@@ -27,7 +28,6 @@ public class SUB_Intake extends SubsystemBase {
 	public void periodic() {
 
 		io.setArmAngle(localState.getDeg());
-		io.setIntakeSpeed(localState.getSpeed());
 
 		// Update inputs
 		io.updateInputs(inputs);
@@ -38,6 +38,11 @@ public class SUB_Intake extends SubsystemBase {
 
 	public void updateLocalState(SuperstructureState.State newLocalState) {
 		localState = newLocalState;
+	}
+
+	public void updateLocalWheelSpeed(double newLocalWheelSpeed) {
+		localWheelSpeed = newLocalWheelSpeed;
+		io.setIntakeSpeed(localWheelSpeed);
 	}
 
 	public SuperstructureState.State getCurrentLocalState() {

@@ -11,11 +11,14 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.algae.CMD_ElevatorAlgae;
 import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.coral.CMD_IntakeCoral;
 import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Elevator;
+import frc.robot.commands.generic.CMD_IntakeWheel;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.InputConstants;
@@ -32,87 +35,107 @@ import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.IO_VisionSim;
 import frc.robot.vision.SUB_Vision;
 import frc.robot.webserver.WebServer;
-
 import java.io.File;
 
 public class RobotContainer {
-    // Controller Configuration
-    private CommandXboxController driverController;
-    private CommandXboxController operatorController;
-    private InputConstants globalInputMap;
+	// Controller Configuration
+	private CommandXboxController driverController;
+	private CommandXboxController operatorController;
+	private InputConstants globalInputMap;
 
-    // Subsystems
-    private SUB_Swerve swerve;
-    private SUB_Intake intake;
-    private SUB_Vision vision;
-    private SUB_Elevator elevator;
-    private SUB_Superstructure superstructure;
-    private SUB_Led led;
-    private WebServer webServer;
+	// Subsystems
+	private SUB_Swerve swerve;
+	private SUB_Intake intake;
+	private SUB_Vision vision;
+	private SUB_Elevator elevator;
+	private SUB_Superstructure superstructure;
+	private SUB_Led led;
+	private WebServer webServer;
 
-    public RobotContainer() {
-        // Initialize Controllers
-        initializeControllers();
+	public RobotContainer() {
+		// Initialize Controllers
+		initializeControllers();
 
-        // Initialize Subsystems
-        initializeSubsystems();
+		// Initialize Subsystems
+		initializeSubsystems();
 
-        // Configure Robot Functionality
-        configureDefaultCommands();
-        configureWebserverCommands();
-        configurePathPlannerCommands();
-        configureButtonBindings();
-    }
+		// Configure Robot Functionality
+		configureDefaultCommands();
+		configureWebserverCommands();
+		configurePathPlannerCommands();
+		configureButtonBindings();
+	}
 
-    private void initializeControllers() {
-        driverController = new CommandXboxController(0);
-        operatorController = new CommandXboxController(1);
-        globalInputMap = InputConstants.TX16S_MAIN;
-    }
+	private void initializeControllers() {
+		driverController = new CommandXboxController(0);
+		operatorController = new CommandXboxController(1);
+		globalInputMap = InputConstants.TX16S_MAIN;
+	}
 
-    private void initializeSubsystems() {
-        webServer = new WebServer();
-        vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
-        swerve = new SUB_Swerve(new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
-        intake = new SUB_Intake(new IO_IntakeReal());
-        elevator = new SUB_Elevator(new IO_ElevatorReal());
-        led = new SUB_Led();
-        superstructure = new SUB_Superstructure(intake, elevator, led);
-    }
+	private void initializeSubsystems() {
+		webServer = new WebServer();
+		vision = new SUB_Vision(Robot.isSimulation() ? new IO_VisionSim() : new IO_VisionReal());
+		swerve = new SUB_Swerve(new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+		intake = new SUB_Intake(new IO_IntakeReal());
+		elevator = new SUB_Elevator(new IO_ElevatorReal());
+		led = new SUB_Led();
+		superstructure = new SUB_Superstructure(intake, elevator, led);
+	}
 
-    private void configureDefaultCommands() {
-        swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
-    }
+	private void configureDefaultCommands() {
+		swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
+	}
 
-    private void configureWebserverCommands() {
-        webServer.registerCommand("T1", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT));
-        webServer.registerCommand("T2", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_RIGHT));
-        webServer.registerCommand("TL1", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_BOTTOM));
-        webServer.registerCommand("TL2", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_TOP));
-    }
+	private void configureWebserverCommands() {
+		webServer.registerCommand("T1", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT));
+		webServer.registerCommand("T2", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_RIGHT));
+		webServer.registerCommand("TL1", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_BOTTOM));
+		webServer.registerCommand("TL2", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_TOP));
+	}
 
-    private void configurePathPlannerCommands() {
-        NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Intake Algae"));
-    }
+	private void configurePathPlannerCommands() {
+		NamedCommands.registerCommand("Intake_Algae", new PrintCommand("Intake Algae"));
+	}
 
-    private void configureButtonBindings() {
+	private void configureButtonBindings() {
 
+		// Extake
+		operatorController.x().onTrue(new CMD_IntakeWheel(intake, -0.6));
 
-        // Coral Controls
-        operatorController.povUp().onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
-        operatorController.povDown().onTrue(new CMD_ElevatorCoral(superstructure, false)); // DPAD-DOWN - Coral down
-        operatorController.a().onTrue(new CMD_IntakeCoral(superstructure)); // A - Intake coral
-        
-        
-        // Superstructure Controls
-        operatorController.b().onTrue(new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE));
+		// Intake alage
+		operatorController.y().onTrue(new CMD_IntakeWheel(intake, 0.95));
 
+		// Coral Controls
+		operatorController
+				.povUp()
+				.onTrue(new CMD_ElevatorCoral(superstructure, true)); // DPAD-UP - Coral up
 
-        // Climbing
-        operatorController.rightBumper().onTrue(new CMD_Elevator(elevator, led, SuperstructureState.State.CLIMB));
-    }
+		operatorController
+				.povDown()
+				.onTrue(new CMD_ElevatorCoral(superstructure, false)); // DPAD-DOWN - Coral down
 
-    public Command getAutonomousCommand() {
-        return swerve.getAutonomousCommand("R_3L4");
-    }
+		// Algae controls
+		operatorController.povLeft().onTrue(new CMD_ElevatorAlgae(superstructure, false)); // DPAD-LEFT
+
+		operatorController.povRight().onTrue(new CMD_ElevatorAlgae(superstructure, true)); // DPAD-RIGHT
+
+		operatorController.a().onTrue(new CMD_IntakeCoral(superstructure)); // A - Intake coral
+
+		// Superstructure Controls
+		operatorController
+				.b()
+				.onTrue(
+						new SequentialCommandGroup(
+								new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE),
+								new CMD_IntakeWheel(intake, SuperstructureState.State.IDLE.getSpeed())));
+
+		// Climbing
+		operatorController
+				.rightBumper()
+				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.State.CLIMB));
+	}
+
+	public Command getAutonomousCommand() {
+		return swerve.getAutonomousCommand("R_3L4");
+	}
 }

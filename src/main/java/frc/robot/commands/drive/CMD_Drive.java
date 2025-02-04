@@ -52,6 +52,10 @@ public class CMD_Drive extends Command {
 						controller.getRawAxis(controllerMap.rotationAxis) * RobotConstants.MAX_SPEED,
 						controllerMap.driveDeadband);
 
+		xVelocity *= controllerMap.forwardInverted ? -1 : 1;
+		yVelocity *= controllerMap.strafeInverted ? -1 : 1;
+		rotationVelocity *= controllerMap.rotationInverted ? -1 : 1;
+
 		// Create translation vector from x and y inputs
 		Translation2d translation = new Translation2d(xVelocity, yVelocity);
 

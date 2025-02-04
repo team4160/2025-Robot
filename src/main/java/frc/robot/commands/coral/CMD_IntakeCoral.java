@@ -8,17 +8,22 @@
 package frc.robot.commands.coral;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.generic.CMD_IntakeWheel;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 
 public class CMD_IntakeCoral extends SequentialCommandGroup {
 	public CMD_IntakeCoral(SUB_Superstructure superstructure) {
+
 		addCommands(
 				// Move to Coral Station state
-				new CMD_Superstructure(superstructure, SuperstructureState.State.CORAL_STATION),
+				new CMD_IntakeWheel(
+						superstructure.intake, SuperstructureState.State.CORAL_STATION.getSpeed()),
+				new CMD_Superstructure(superstructure, SuperstructureState.State.CORAL_STATION)
 
 				// TODO: Auto idle intake after coral is sensed by the sensor
-				new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE));
+				// new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE)
+				);
 	}
 }

@@ -11,14 +11,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.SUB_Intake;
 import frc.robot.util.SUB_Led;
+import org.littletonrobotics.junction.Logger;
 
 public class SUB_Superstructure extends SubsystemBase {
 
 	private SuperstructureState.State currentSuperstructureState = SuperstructureState.State.IDLE;
 
-	private SUB_Intake intake;
-	private SUB_Elevator elevator;
-	private SUB_Led led;
+	public SUB_Intake intake;
+	public SUB_Elevator elevator;
+	public SUB_Led led;
 
 	public SUB_Superstructure(SUB_Intake intake, SUB_Elevator elevator, SUB_Led led) {
 		this.intake = intake;
@@ -34,6 +35,12 @@ public class SUB_Superstructure extends SubsystemBase {
 		elevator.updateLocalState(currentSuperstructureState);
 		intake.updateLocalState(currentSuperstructureState);
 		led.updateLocalState(currentSuperstructureState);
+
+		Logger.recordOutput("Superstructure State", currentSuperstructureState.toString());
+	}
+
+	public void updateIntakeWheelSpeed(double newIntakeWheelSpeed) {
+		intake.updateLocalWheelSpeed(newIntakeWheelSpeed);
 	}
 
 	public SuperstructureState.State getCurrentSuperstructureState() {

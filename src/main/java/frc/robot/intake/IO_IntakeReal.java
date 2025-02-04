@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.util.IRBeamBreak;
 
@@ -28,21 +29,31 @@ public class IO_IntakeReal implements IO_IntakeBase {
 		wheelMotor = new SparkMax(22, MotorType.kBrushless);
 		toggleSensor = new IRBeamBreak(0);
 
-		SparkMaxConfig sparkMaxConfig = new SparkMaxConfig();
-		sparkMaxConfig.encoder.positionConversionFactor(5.142);
-		sparkMaxConfig.inverted(true);
+		SparkMaxConfig wheelSparkMaxConfig = new SparkMaxConfig();
+		wheelSparkMaxConfig.smartCurrentLimit(55);
+		wheelMotor.configure(
+				wheelSparkMaxConfig,
+				SparkBase.ResetMode.kNoResetSafeParameters,
+				SparkBase.PersistMode.kPersistParameters);
+
+		SparkMaxConfig armSparkMaxConfig = new SparkMaxConfig();
+		// sparkMaxConfig.encoder.positionConversionFactor(0.45); //old 5.142
+		armSparkMaxConfig.absoluteEncoder.positionConversionFactor(165);
+		armSparkMaxConfig.absoluteEncoder.inverted(true);
+		armSparkMaxConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+		armSparkMaxConfig.inverted(true);
 
 		ClosedLoopConfig closedLoopConfig = new ClosedLoopConfig();
 
-		closedLoopConfig.p(0);
+		closedLoopConfig.p(0.013);
 
 		closedLoopConfig.i(0);
 		closedLoopConfig.d(0);
 
-		sparkMaxConfig.apply(closedLoopConfig);
+		armSparkMaxConfig.apply(closedLoopConfig);
 
 		armMotor.configure(
-				sparkMaxConfig,
+				armSparkMaxConfig,
 				SparkBase.ResetMode.kNoResetSafeParameters,
 				SparkBase.PersistMode.kPersistParameters);
 
@@ -52,18 +63,19 @@ public class IO_IntakeReal implements IO_IntakeBase {
 	@Override
 	public void updateInputs(IntakeInputs inputs) {
 
-		inputs.armAngleDegrees = armMotor.getEncoder().getPosition();
+		inputs.armAngleDegrees = armMotor.getAbsoluteEncoder().getPosition() + 12;
 		inputs.armMotorVoltage = armMotor.getAppliedOutput();
 		inputs.armMotorCurrent = armMotor.getOutputCurrent();
 		inputs.wheelMotorCurrent = wheelMotor.getOutputCurrent();
 		inputs.wheelRPM = wheelMotor.getEncoder().getVelocity();
 		inputs.toggleSensor = toggleSensor.getState();
 		inputs.distanceSensorCM = 0;
+		// inputs.internalPIDSetpoint = armMotor.getClosedLoopController().
 	}
 
 	@Override
 	public void setArmAngle(double angle) {
-		armMotor.getClosedLoopController().setReference(angle, ControlType.kPosition);
+		armMotor.getClosedLoopController().setReference(angle - 14, ControlType.kPosition);
 	}
 
 	@Override

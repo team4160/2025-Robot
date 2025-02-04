@@ -12,24 +12,23 @@ public class SuperstructureState {
 	public enum State {
 
 		// Generic
-		IDLE(0.05, -15, 0.0),
+		IDLE(0.1, 18, 0.0),
 		CLIMB(0.5, 0, 0.0),
 
-
 		// Coral
-		CORAL_STATION(1.0, 120, 0.8),
-		L1_SCORING(0.5, 30, -0.8),
-		L2_SCORING(0.8, 0, 0.0),
-		L3_SCORING(1.2, 0, 0.0),
-		L2_L3_SCORING(0.0, 45, -0.8),
-		L4_SCORING(1.85, 30, -0.8),
+		CORAL_STATION(0.38, 32, 0.3),
+
+		L1_SCORING(0.5, 100, 0.0),
+		L2_SCORING(0.8, 120, 0.0),
+		L3_SCORING(1.4, 120, 0.0),
+		L4_SCORING(2.415, 121, 0.0),
 
 		// Algae
-		ALGAE_GROUND(0.1, 45, -1.0),
-		ALGAE_PROCESSOR(0.1, 85, -1.0),
-		ALGAE_BARGE(2.35, 135, -0.25),
-		ALGAE_L2(0.0, 85, -0.8),
-		ALGAE_L3(0.0, 85, -0.8);
+		ALGAE_GROUND(0.1, 135, 0.0),
+		ALGAE_PROCESSOR(0.1, 90, 0.0),
+		ALGAE_BARGE(0.1, 45, -0.25),
+		ALGAE_L2(0.7, 90, -0.8),
+		ALGAE_L3(1.85, 135, -0.8);
 
 		// Climb
 		private final double heightM;
@@ -53,6 +52,5 @@ public class SuperstructureState {
 		public double getSpeed() {
 			return speed;
 		}
-
 	}
 }

@@ -16,10 +16,11 @@ public class CMD_IntakeAlgae extends SequentialCommandGroup {
 	public CMD_IntakeAlgae(SUB_Superstructure superstructure) {
 		addCommands(
 				// Move to Algae Ground state
-				new CMD_Superstructure(superstructure, SuperstructureState.State.ALGAE_GROUND),
+				new CMD_Superstructure(superstructure, SuperstructureState.State.ALGAE_GROUND)
 
 				// TODO: Auto idle intake after algae is NOT sensed by the sensor and current limit is
 				// reached
-				new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE));
+				// new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE)
+				);
 	}
 }

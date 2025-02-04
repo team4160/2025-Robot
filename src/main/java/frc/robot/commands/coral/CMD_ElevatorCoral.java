@@ -7,46 +7,54 @@
 
 package frc.robot.commands.coral;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.generic.CMD_Superstructure;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 
-public class CMD_ElevatorCoral extends SequentialCommandGroup {
-	public CMD_ElevatorCoral(SUB_Superstructure superstructure, boolean isElevatorUp) {
-		SuperstructureState.State currentState = superstructure.getCurrentSuperstructureState();
-		SuperstructureState.State newState = determineNewState(currentState, isElevatorUp);
+public class CMD_ElevatorCoral extends Command {
+	private final SUB_Superstructure superstructure;
+	private final boolean isMovingUp;
 
-		// Add the command to update the superstructure state
-		addCommands(new CMD_Superstructure(superstructure, newState));
+	public CMD_ElevatorCoral(SUB_Superstructure superstructure, boolean isMovingUp) {
+		this.superstructure = superstructure;
+		this.isMovingUp = isMovingUp;
+		addRequirements(superstructure);
 	}
 
-	private SuperstructureState.State determineNewState(
-			SuperstructureState.State currentState, boolean isElevatorUp) {
-		if (isElevatorUp) {
-			// Elevator Up Logic
-			switch (currentState) {
-				case L1_SCORING:
-					return SuperstructureState.State.L2_SCORING;
-				case L2_SCORING:
-					return SuperstructureState.State.L3_SCORING;
-				case L3_SCORING:
-					return SuperstructureState.State.L4_SCORING;
-				default:
-					return currentState;
+	@Override
+	public void initialize() {
+		SuperstructureState.State currentState = superstructure.getCurrentSuperstructureState();
+		SuperstructureState.State newState = SuperstructureState.State.L1_SCORING;
+
+		if (isMovingUp) {
+			if (currentState == SuperstructureState.State.L1_SCORING) {
+				newState = SuperstructureState.State.L2_SCORING;
+			} else if (currentState == SuperstructureState.State.L2_SCORING) {
+				newState = SuperstructureState.State.L3_SCORING;
+			} else if (currentState == SuperstructureState.State.L3_SCORING) {
+				newState = SuperstructureState.State.L4_SCORING;
 			}
 		} else {
-			// Elevator Down Logic
-			switch (currentState) {
-				case L4_SCORING:
-					return SuperstructureState.State.L3_SCORING;
-				case L3_SCORING:
-					return SuperstructureState.State.L2_SCORING;
-				case L2_SCORING:
-					return SuperstructureState.State.L1_SCORING;
-				default:
-					return currentState;
+			if (currentState == SuperstructureState.State.L4_SCORING) {
+				newState = SuperstructureState.State.L3_SCORING;
+			} else if (currentState == SuperstructureState.State.L3_SCORING) {
+				newState = SuperstructureState.State.L2_SCORING;
+			} else if (currentState == SuperstructureState.State.L2_SCORING) {
+				newState = SuperstructureState.State.L1_SCORING;
 			}
 		}
+
+		superstructure.updateSuperstructureState(newState);
 	}
+
+	@Override
+	public void execute() {}
+
+	@Override
+	public boolean isFinished() {
+		return true;
+	}
+
+	@Override
+	public void end(boolean interrupted) {}
 }

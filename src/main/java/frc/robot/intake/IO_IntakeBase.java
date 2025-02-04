@@ -23,6 +23,7 @@ public interface IO_IntakeBase {
 		public double wheelRPM = 0.0;
 		public boolean toggleSensor = false;
 		public double distanceSensorCM = 0.0;
+		public double internalPIDSetpoint = 0.0;
 
 		@Override
 		public void toLog(LogTable table) {
@@ -33,6 +34,7 @@ public interface IO_IntakeBase {
 			table.put("wheelRPM", wheelRPM);
 			table.put("toggleSensor", toggleSensor);
 			table.put("distanceSensorCM", distanceSensorCM);
+			table.put("internalPIDSetpoint", internalPIDSetpoint);
 		}
 
 		@Override
@@ -44,6 +46,7 @@ public interface IO_IntakeBase {
 			wheelRPM = table.get("wheelRPM", wheelRPM);
 			toggleSensor = table.get("toggleSensor", toggleSensor);
 			distanceSensorCM = table.get("distanceSensorCM", distanceSensorCM);
+			internalPIDSetpoint = table.get("internalPIDSetpoint", internalPIDSetpoint);
 		}
 	}
 

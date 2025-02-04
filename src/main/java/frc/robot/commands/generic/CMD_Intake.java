@@ -8,15 +8,13 @@
 package frc.robot.commands.generic;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 
 public class CMD_Intake extends SequentialCommandGroup {
 	public CMD_Intake(SUB_Superstructure superstructure) {
 
-		//boolean isAtAnyCoralState = superstructure.getCurrentSuperstructureState();
-
+		// boolean isAtAnyCoralState = superstructure.getCurrentSuperstructureState();
 
 		addCommands(
 				// Move to Coral Station state

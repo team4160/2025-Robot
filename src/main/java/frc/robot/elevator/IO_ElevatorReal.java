@@ -121,7 +121,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 		slot0Configs.kS = 0.35; // Static friction compensation (V)
 
 		// TODO: Set these values, most likely needed for motion magic to work!
-		slot0Configs.kV = 0; // Velocity feed forward (V per m/s)
+		slot0Configs.kV = 0.01; // Velocity feed forward (V per m/s)
 		slot0Configs.kA = 0; // Acceleration feed forward (V per m/s²)
 
 		slot0Configs.kP = 0.052; // Position error gain (V per meter)
@@ -139,7 +139,7 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 
 		// Apply soft limits
 		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2350; // Set to max height in mm
+		motorConfigs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 2420; // Set to max height in mm
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 		motorConfigs.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0.0;
 

@@ -7,46 +7,62 @@
 
 package frc.robot.commands.algae;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.generic.CMD_Superstructure;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.superstructure.SUB_Superstructure;
 import frc.robot.superstructure.SuperstructureState;
 
-public class CMD_ElevatorAlgae extends SequentialCommandGroup {
-	public CMD_ElevatorAlgae(SUB_Superstructure superstructure, boolean isElevatorUp) {
-		SuperstructureState.State currentState = superstructure.getCurrentSuperstructureState();
-		SuperstructureState.State newState = determineNewState(currentState, isElevatorUp);
+public class CMD_ElevatorAlgae extends Command {
+	private final SUB_Superstructure superstructure;
+	private final boolean isMovingUp;
 
-		// Add the command to update the superstructure state
-		addCommands(new CMD_Superstructure(superstructure, newState));
+	public CMD_ElevatorAlgae(SUB_Superstructure superstructure, boolean isMovingUp) {
+		this.superstructure = superstructure;
+		this.isMovingUp = isMovingUp;
+		addRequirements(superstructure);
 	}
 
-	private SuperstructureState.State determineNewState(
-			SuperstructureState.State currentState, boolean isElevatorUp) {
-		if (isElevatorUp) {
-			// Elevator Up Logic for Algae states
-			switch (currentState) {
-				case ALGAE_GROUND:
-					return SuperstructureState.State.ALGAE_L2;
-				case ALGAE_L2:
-					return SuperstructureState.State.ALGAE_PROCESSOR;
-				case ALGAE_PROCESSOR:
-					return SuperstructureState.State.ALGAE_BARGE;
-				default:
-					return currentState;
+	@Override
+	public void initialize() {
+		SuperstructureState.State currentState = superstructure.getCurrentSuperstructureState();
+		SuperstructureState.State newState = SuperstructureState.State.ALGAE_GROUND;
+
+		if (isMovingUp) {
+			if (currentState == SuperstructureState.State.ALGAE_GROUND) {
+				newState = SuperstructureState.State.ALGAE_PROCESSOR;
+			} else if (currentState == SuperstructureState.State.ALGAE_PROCESSOR) {
+				newState = SuperstructureState.State.ALGAE_L2;
+			} else if (currentState == SuperstructureState.State.ALGAE_L2) {
+				newState = SuperstructureState.State.ALGAE_L3;
+			} else if (currentState == SuperstructureState.State.ALGAE_L3) {
+				newState = SuperstructureState.State.ALGAE_BARGE;
+			} else if (currentState == SuperstructureState.State.ALGAE_BARGE) {
+				newState = SuperstructureState.State.ALGAE_GROUND;
 			}
 		} else {
-			// Elevator Down Logic for Algae states
-			switch (currentState) {
-				case ALGAE_BARGE:
-					return SuperstructureState.State.ALGAE_PROCESSOR;
-				case ALGAE_PROCESSOR:
-					return SuperstructureState.State.ALGAE_L2;
-				case ALGAE_L2:
-					return SuperstructureState.State.ALGAE_GROUND;
-				default:
-					return currentState;
+			if (currentState == SuperstructureState.State.ALGAE_BARGE) {
+				newState = SuperstructureState.State.ALGAE_L3;
+			} else if (currentState == SuperstructureState.State.ALGAE_L3) {
+				newState = SuperstructureState.State.ALGAE_L2;
+			} else if (currentState == SuperstructureState.State.ALGAE_L2) {
+				newState = SuperstructureState.State.ALGAE_PROCESSOR;
+			} else if (currentState == SuperstructureState.State.ALGAE_PROCESSOR) {
+				newState = SuperstructureState.State.ALGAE_GROUND;
+			} else if (currentState == SuperstructureState.State.ALGAE_GROUND) {
+				newState = SuperstructureState.State.ALGAE_BARGE;
 			}
 		}
+
+		superstructure.updateSuperstructureState(newState);
 	}
+
+	@Override
+	public void execute() {}
+
+	@Override
+	public boolean isFinished() {
+		return true;
+	}
+
+	@Override
+	public void end(boolean interrupted) {}
 }
