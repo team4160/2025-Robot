@@ -74,7 +74,9 @@ public class RobotContainer {
 	private void initializeSubsystems() {
 		webServer = new WebServer();
 		vision = new SUB_Vision(new IO_VisionSim());
-		swerve = new SUB_Swerve(new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")));
+		swerve =
+				new SUB_Swerve(
+						new IO_SwerveReal(new File(Filesystem.getDeployDirectory(), "swerve")), vision);
 		intake = new SUB_Intake(new IO_IntakeReal());
 		elevator = new SUB_Elevator(new IO_ElevatorReal());
 		led = new SUB_Led();
@@ -135,6 +137,6 @@ public class RobotContainer {
 	}
 
 	public Command getAutonomousCommand() {
-		return swerve.getAutonomousCommand("R_3L4");
+		return swerve.getAutonomousCommand("RIGHT_3L4");
 	}
 }

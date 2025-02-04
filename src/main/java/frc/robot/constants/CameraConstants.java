@@ -21,7 +21,7 @@ public final class CameraConstants {
 
 	public enum Camera {
 		LEFT_CAM(
-				"OV9281_03",
+				"OV9281_01",
 				new Rotation3d(0, Math.toRadians(-24.094), Math.toRadians(30)),
 				new Translation3d(
 						Units.inchesToMeters(12.056), Units.inchesToMeters(10.981), Units.inchesToMeters(8.44)),
@@ -36,13 +36,11 @@ public final class CameraConstants {
 						Units.inchesToMeters(8.44)),
 				VecBuilder.fill(4, 4, 8),
 				VecBuilder.fill(0.5, 0.5, 1)),
-		CENTER_CAM(
-				"center",
-				new Rotation3d(0, Units.degreesToRadians(-145), 0),
+		BACK_LEFT_CAM(
+				"OV9281_03",
+				new Rotation3d(0, Units.degreesToRadians(-155), 0),
 				new Translation3d(
-						Units.inchesToMeters(-4.628),
-						Units.inchesToMeters(-10.687),
-						Units.inchesToMeters(16.129)),
+						Units.inchesToMeters(-11.25), Units.inchesToMeters(9), Units.inchesToMeters(20.5)),
 				VecBuilder.fill(4, 4, 8),
 				VecBuilder.fill(0.5, 0.5, 1));
 
@@ -69,6 +67,6 @@ public final class CameraConstants {
 	public static final Pose3d[] CAMERA_POSITIONS = {
 		new Pose3d(Camera.LEFT_CAM.translation, Camera.LEFT_CAM.rotation),
 		new Pose3d(Camera.RIGHT_CAM.translation, Camera.RIGHT_CAM.rotation),
-		new Pose3d(Camera.CENTER_CAM.translation, Camera.CENTER_CAM.rotation)
+		new Pose3d(Camera.BACK_LEFT_CAM.translation, Camera.BACK_LEFT_CAM.rotation)
 	};
 }

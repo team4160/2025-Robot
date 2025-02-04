@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.CameraConstants;
 import java.util.ArrayList;
@@ -49,13 +50,15 @@ public class IO_VisionSim implements IO_VisionBase {
 		properties.setAvgLatencyMs(35);
 		properties.setLatencyStdDevMs(5);
 
-		// Add cameras
+		NetworkTableInstance instance = NetworkTableInstance.getDefault();
+
+		// Initialize cameras with proper NetworkTables entries
 		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
-			PhotonCamera camera = new PhotonCamera(cam.name);
+			PhotonCamera camera = new PhotonCamera(NetworkTableInstance.getDefault(), cam.name);
 			PhotonCameraSim cameraSim = new PhotonCameraSim(camera, properties);
 			cameraSim.enableDrawWireframe(true);
 			cameraSims.put(cam, cameraSim);
-			currentResults.put(cam, new PhotonPipelineResult()); // Empty initial result
+			currentResults.put(cam, new PhotonPipelineResult());
 
 			Transform3d robotToCam = new Transform3d(cam.translation, cam.rotation);
 			visionSim.addCamera(cameraSim, robotToCam);
@@ -105,12 +108,15 @@ public class IO_VisionSim implements IO_VisionBase {
 						inputs.hasRightTarget = true;
 						inputs.rightBestTargetID = result.getBestTarget().getFiducialId();
 						break;
-					case CENTER_CAM:
-						inputs.hasCenterTarget = true;
-						inputs.centerBestTargetID = result.getBestTarget().getFiducialId();
+					case BACK_LEFT_CAM:
+						inputs.hasBackLeftTarget = true;
+						inputs.backLeftBestTargetID = result.getBestTarget().getFiducialId();
 						break;
 				}
 			}
+
+			inputs.lastEstimatedPose =
+					lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
 		}
 
 		// Update inputs with visible tag poses

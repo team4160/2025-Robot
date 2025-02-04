@@ -28,20 +28,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.vision.SUB_Vision;
 import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.parser.SwerveDriveConfiguration;
 
 public class SUB_Swerve extends SubsystemBase {
 	private final IO_SwerveBase io;
-	//	private final SUB_Vision vision;
+	private final SUB_Vision vision;
 
 	private final IO_SwerveBase.SwerveInputs inputs = new IO_SwerveBase.SwerveInputs();
 	private final AprilTagFieldLayout aprilTagFieldLayout;
 
-	public SUB_Swerve(IO_SwerveBase io) {
+	public SUB_Swerve(IO_SwerveBase io, SUB_Vision vision) {
 		this.io = io;
-		//	this.vision = vision;
+		this.vision = vision;
 
 		try {
 			this.aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
@@ -55,21 +56,20 @@ public class SUB_Swerve extends SubsystemBase {
 	@Override
 	public void periodic() {
 
-		/*
-				// Update vision with current swerve pose
-				vision.updatePoseEstimation(getPose());
+		// Update vision with current swerve pose
+		vision.updatePoseEstimation(getPose());
 
-				// Add new vision measurements to the swerve drive odometry if its available
-				if (vision.getEstimatedGlobalPose().isPresent()) {
-					io.addVisionMeasurement(
-							vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
-							vision.getEstimatedGlobalPose().get().timestampSeconds);
+		// Add new vision measurements to the swerve drive odometry if its available
+		if (vision.getEstimatedGlobalPose().isPresent()) {
+			io.addVisionMeasurement(
+					vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
+					vision.getEstimatedGlobalPose().get().timestampSeconds);
 
-					// Record estimated pose output
-					Logger.recordOutput(
-							"Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
-				}
-		*/
+			// Record estimated pose output
+			Logger.recordOutput(
+					"Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
+		}
+
 		// Convert Pose2d to Pose3d for camera position transformation
 		Pose3d robotPose3d = new Pose3d(inputs.robotPose);
 

@@ -48,7 +48,7 @@ public class IO_VisionReal implements IO_VisionBase {
 
 	/** Constructor initializes all cameras and their pose estimators */
 	public IO_VisionReal() {
-		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
 		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
 			cameras.put(cam, new PhotonCamera(cam.name));
@@ -111,9 +111,9 @@ public class IO_VisionReal implements IO_VisionBase {
 						inputs.hasRightTarget = true;
 						inputs.rightBestTargetID = bestTarget.getFiducialId();
 						break;
-					case CENTER_CAM:
-						inputs.hasCenterTarget = true;
-						inputs.centerBestTargetID = bestTarget.getFiducialId();
+					case BACK_LEFT_CAM:
+						inputs.hasBackLeftTarget = true;
+						inputs.backLeftBestTargetID = bestTarget.getFiducialId();
 						break;
 				}
 			}
@@ -121,6 +121,8 @@ public class IO_VisionReal implements IO_VisionBase {
 
 		// Update inputs with visible tag poses
 		inputs.visibleTagPoses = visibleTagPoses.toArray(new Pose3d[0]);
+		inputs.lastEstimatedPose =
+				lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
 	}
 
 	/** Updates robot pose estimation using data from all cameras */

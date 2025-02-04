@@ -20,17 +20,18 @@ public interface IO_VisionBase {
 
 		public boolean hasLeftTarget = false;
 		public boolean hasRightTarget = false;
-		public boolean hasCenterTarget = false;
+		public boolean hasBackLeftTarget = false;
 
 		public double leftLatencyMS = 0.0;
 		public double rightLatencyMS = 0.0;
-		public double centerLatencyMS = 0.0;
+		public double backLeftLatencyMS = 0.0;
 
 		public double leftBestTargetID = -1.0;
 		public double rightBestTargetID = -1.0;
-		public double centerBestTargetID = -1.0;
+		public double backLeftBestTargetID = -1.0;
 
 		public Pose3d[] visibleTagPoses = new Pose3d[0];
+		public Pose3d lastEstimatedPose = new Pose3d();
 	}
 
 	public void updateInputs(VisionInputs inputs);
