@@ -46,6 +46,8 @@ public class IO_VisionReal implements IO_VisionBase {
 	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
 	private final Map<CameraConstants.Camera, Matrix<N3, N1>> currentStdDevs = new HashMap<>();
 
+	private Pose3d lastCurrentPose = new Pose3d();
+
 	/** Constructor initializes all cameras and their pose estimators */
 	public IO_VisionReal() {
 		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
@@ -68,7 +70,9 @@ public class IO_VisionReal implements IO_VisionBase {
 	/** Updates vision inputs with the latest target information from each camera */
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-		List<Pose3d> visibleTagPoses = new ArrayList<>();
+		List<Pose3d> leftTagPoses = new ArrayList<>();
+		List<Pose3d> rightTagPoses = new ArrayList<>();
+		List<Pose3d> backLeftTagPoses = new ArrayList<>();
 
 		// Update all camera results first
 		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
@@ -87,19 +91,22 @@ public class IO_VisionReal implements IO_VisionBase {
 		for (Map.Entry<CameraConstants.Camera, PhotonCamera> entry : cameras.entrySet()) {
 			CameraConstants.Camera cam = entry.getKey();
 			PhotonPipelineResult result = currentResults.get(cam);
-
 			if (result.hasTargets()) {
 				PhotonTrackedTarget bestTarget = result.getBestTarget();
 
-				// Collect poses of all visible tags
+				// Calculate camera position based on robot pose
+				Pose3d cameraPose =
+						lastCurrentPose.transformBy(new Transform3d(cam.translation, cam.rotation));
+
+				// Process targets for each camera
+				List<Pose3d> currentCameraPoses = new ArrayList<>();
 				for (PhotonTrackedTarget target : result.getTargets()) {
 					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-					tagPose.ifPresent(
-							pose -> {
-								if (!visibleTagPoses.contains(pose)) {
-									visibleTagPoses.add(pose);
-								}
-							});
+					if (tagPose.isPresent()) {
+						// Add both AprilTag pose and camera position pose
+						currentCameraPoses.add(tagPose.get());
+						currentCameraPoses.add(cameraPose);
+					}
 				}
 
 				switch (cam) {
@@ -120,13 +127,16 @@ public class IO_VisionReal implements IO_VisionBase {
 		}
 
 		// Update inputs with visible tag poses
-		inputs.visibleTagPoses = visibleTagPoses.toArray(new Pose3d[0]);
+		inputs.leftVisibleTagPoses = leftTagPoses.toArray(new Pose3d[0]);
+		inputs.rightVisibleTagPoses = rightTagPoses.toArray(new Pose3d[0]);
+		inputs.backLeftVisibleTagPoses = backLeftTagPoses.toArray(new Pose3d[0]);
 		inputs.lastEstimatedPose =
 				lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
 	}
 
 	/** Updates robot pose estimation using data from all cameras */
 	public void updatePoseEstimation(Pose2d currentPose) {
+		lastCurrentPose = new Pose3d(currentPose);
 		Map<CameraConstants.Camera, EstimatedRobotPose> cameraEstimates = new HashMap<>();
 
 		for (Map.Entry<CameraConstants.Camera, PhotonPoseEstimator> entry : poseEstimators.entrySet()) {

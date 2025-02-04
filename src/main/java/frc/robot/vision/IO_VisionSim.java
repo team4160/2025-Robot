@@ -14,14 +14,12 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.constants.CameraConstants;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -36,6 +34,8 @@ public class IO_VisionSim implements IO_VisionBase {
 	private final Map<CameraConstants.Camera, PhotonPipelineResult> currentResults = new HashMap<>();
 	private Optional<EstimatedRobotPose> lastEstimatedPose = Optional.empty();
 	private final AprilTagFieldLayout fieldLayout;
+
+	private Pose3d lastCurrentPose = new Pose3d();
 
 	public IO_VisionSim() {
 		fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
@@ -67,7 +67,9 @@ public class IO_VisionSim implements IO_VisionBase {
 
 	@Override
 	public void updateInputs(VisionInputs inputs) {
-		List<Pose3d> visibleTagPoses = new ArrayList<>();
+		List<Pose3d> leftTagPoses = new ArrayList<>();
+		List<Pose3d> rightTagPoses = new ArrayList<>();
+		List<Pose3d> backLeftTagPoses = new ArrayList<>();
 
 		// Update all camera results first
 		for (Map.Entry<CameraConstants.Camera, PhotonCameraSim> entry : cameraSims.entrySet()) {
@@ -87,48 +89,52 @@ public class IO_VisionSim implements IO_VisionBase {
 			CameraConstants.Camera cam = entry.getKey();
 			PhotonPipelineResult result = currentResults.get(cam);
 
-			// Collect visible tag poses
 			if (result.hasTargets()) {
+				PhotonTrackedTarget bestTarget = result.getBestTarget();
+
+				// Calculate camera position based on robot pose
+				Pose3d cameraPose =
+						lastCurrentPose.transformBy(new Transform3d(cam.translation, cam.rotation));
+
+				// Get poses for the current camera
 				for (PhotonTrackedTarget target : result.getTargets()) {
 					Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-					tagPose.ifPresent(
-							pose -> {
-								if (!visibleTagPoses.contains(pose)) {
-									visibleTagPoses.add(pose);
-								}
-							});
-				}
-
-				switch (cam) {
-					case LEFT_CAM:
-						inputs.hasLeftTarget = true;
-						inputs.leftBestTargetID = result.getBestTarget().getFiducialId();
-						break;
-					case RIGHT_CAM:
-						inputs.hasRightTarget = true;
-						inputs.rightBestTargetID = result.getBestTarget().getFiducialId();
-						break;
-					case BACK_LEFT_CAM:
-						inputs.hasBackLeftTarget = true;
-						inputs.backLeftBestTargetID = result.getBestTarget().getFiducialId();
-						break;
+					if (tagPose.isPresent()) {
+						switch (cam) {
+							case LEFT_CAM:
+								leftTagPoses.add(tagPose.get());
+								leftTagPoses.add(cameraPose);
+								inputs.hasLeftTarget = true;
+								inputs.leftBestTargetID = bestTarget.getFiducialId();
+								break;
+							case RIGHT_CAM:
+								rightTagPoses.add(tagPose.get());
+								rightTagPoses.add(cameraPose);
+								inputs.hasRightTarget = true;
+								inputs.rightBestTargetID = bestTarget.getFiducialId();
+								break;
+							case BACK_LEFT_CAM:
+								backLeftTagPoses.add(tagPose.get());
+								backLeftTagPoses.add(cameraPose);
+								inputs.hasBackLeftTarget = true;
+								inputs.backLeftBestTargetID = bestTarget.getFiducialId();
+								break;
+						}
+					}
 				}
 			}
-
-			inputs.lastEstimatedPose =
-					lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
 		}
 
-		// Update inputs with visible tag poses
-		inputs.visibleTagPoses = visibleTagPoses.toArray(new Pose3d[0]);
-		Logger.recordOutput("Vision/TagPoses", inputs.visibleTagPoses);
-
-		// Record estimated pose output
-		SmartDashboard.putData("Vision/CurrentEstimatedPose", visionSim.getDebugField());
+		inputs.leftVisibleTagPoses = leftTagPoses.toArray(new Pose3d[0]);
+		inputs.rightVisibleTagPoses = rightTagPoses.toArray(new Pose3d[0]);
+		inputs.backLeftVisibleTagPoses = backLeftTagPoses.toArray(new Pose3d[0]);
+		inputs.lastEstimatedPose =
+				lastEstimatedPose.isPresent() ? lastEstimatedPose.get().estimatedPose : null;
 	}
 
 	@Override
 	public void updatePoseEstimation(Pose2d currentPose) {
+		lastCurrentPose = new Pose3d(currentPose);
 		visionSim.update(currentPose);
 	}
 
