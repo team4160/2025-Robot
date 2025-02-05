@@ -100,10 +100,18 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Extake
-		operatorController.x().onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentStateWithNewWheelSpeed(-0.6)));
+		operatorController
+				.x()
+				.onTrue(
+						new CMD_Superstructure(
+								superstructure, superstructure.getCurrentStateWithNewWheelSpeed(-0.6)));
 
 		// Intake alage
-		operatorController.x().onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentStateWithNewWheelSpeed(0.95)));
+		operatorController
+				.x()
+				.onTrue(
+						new CMD_Superstructure(
+								superstructure, superstructure.getCurrentStateWithNewWheelSpeed(0.95)));
 
 		// Coral Controls
 		operatorController
@@ -127,7 +135,10 @@ public class RobotContainer {
 				.onTrue(
 						new SequentialCommandGroup(
 								new CMD_Superstructure(superstructure, SuperstructureState.IDLE),
-								new CMD_Superstructure(superstructure, superstructure.getCurrentStateWithNewWheelSpeed(SuperstructureState.CORAL_STATION.getSpeed())))); // B - Idle
+								new CMD_Superstructure(
+										superstructure,
+										superstructure.getCurrentStateWithNewWheelSpeed(
+												SuperstructureState.CORAL_STATION.getSpeed())))); // B - Idle
 
 		// Climbing
 		operatorController
