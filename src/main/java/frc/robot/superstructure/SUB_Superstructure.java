@@ -8,6 +8,7 @@ package frc.robot.superstructure;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.SUB_Intake;
+import frc.robot.superstructure.SuperstructureState.State;
 import frc.robot.util.SUB_Led;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,8 +32,8 @@ public class SUB_Superstructure extends SubsystemBase {
         Logger.recordOutput("Superstructure State", currentSuperstructureState.toString());
     }
 
-    public void updateIntakeWheelSpeed(double newIntakeWheelSpeed) {
-        intake.updateLocalWheelSpeed(newIntakeWheelSpeed);
+    public State getCurrentStateWithNewWheelSpeed(double newSpeed){
+        return SuperstructureState.createState(currentSuperstructureState.getName(), currentSuperstructureState.getHeightM(), currentSuperstructureState.getDeg(), newSpeed);
     }
 
     public SuperstructureState.State getCurrentSuperstructureState() {

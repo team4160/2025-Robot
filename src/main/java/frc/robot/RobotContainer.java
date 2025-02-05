@@ -18,7 +18,6 @@ import frc.robot.commands.coral.CMD_ElevatorCoral;
 import frc.robot.commands.coral.CMD_IntakeCoral;
 import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Elevator;
-import frc.robot.commands.generic.CMD_IntakeWheel;
 import frc.robot.commands.generic.CMD_Superstructure;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.InputConstants;
@@ -101,10 +100,10 @@ public class RobotContainer {
 	private void configureButtonBindings() {
 
 		// Extake
-		operatorController.x().onTrue(new CMD_IntakeWheel(intake, -0.6));
+		operatorController.x().onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentStateWithNewWheelSpeed(-0.6)));
 
 		// Intake alage
-		operatorController.y().onTrue(new CMD_IntakeWheel(intake, 0.95));
+		operatorController.x().onTrue(new CMD_Superstructure(superstructure, superstructure.getCurrentStateWithNewWheelSpeed(0.95)));
 
 		// Coral Controls
 		operatorController
@@ -128,12 +127,12 @@ public class RobotContainer {
 				.onTrue(
 						new SequentialCommandGroup(
 								new CMD_Superstructure(superstructure, SuperstructureState.IDLE),
-								new CMD_IntakeWheel(intake, SuperstructureState.IDLE.getSpeed())));
+								new CMD_Superstructure(superstructure, superstructure.getCurrentStateWithNewWheelSpeed(SuperstructureState.CORAL_STATION.getSpeed())))); // B - Idle
 
 		// Climbing
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.));
+				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.CLIMB));
 	}
 
 	public Command getAutonomousCommand() {
