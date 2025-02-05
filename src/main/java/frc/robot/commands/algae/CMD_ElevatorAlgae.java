@@ -24,31 +24,31 @@ public class CMD_ElevatorAlgae extends Command {
 	@Override
 	public void initialize() {
 		SuperstructureState.State currentState = superstructure.getCurrentSuperstructureState();
-		SuperstructureState.State newState = SuperstructureState.State.ALGAE_GROUND;
+		SuperstructureState.State newState = SuperstructureState.ALGAE_GROUND;
 
 		if (isMovingUp) {
-			if (currentState == SuperstructureState.State.ALGAE_GROUND) {
-				newState = SuperstructureState.State.ALGAE_PROCESSOR;
-			} else if (currentState == SuperstructureState.State.ALGAE_PROCESSOR) {
-				newState = SuperstructureState.State.ALGAE_L2;
-			} else if (currentState == SuperstructureState.State.ALGAE_L2) {
-				newState = SuperstructureState.State.ALGAE_L3;
-			} else if (currentState == SuperstructureState.State.ALGAE_L3) {
-				newState = SuperstructureState.State.ALGAE_BARGE;
-			} else if (currentState == SuperstructureState.State.ALGAE_BARGE) {
-				newState = SuperstructureState.State.ALGAE_GROUND;
+			if (currentState == SuperstructureState.ALGAE_GROUND) {
+				newState = SuperstructureState.ALGAE_PROCESSOR;
+			} else if (currentState == SuperstructureState.ALGAE_PROCESSOR) {
+				newState = SuperstructureState.ALGAE_L2;
+			} else if (currentState == SuperstructureState.ALGAE_L2) {
+				newState = SuperstructureState.ALGAE_L3;
+			} else if (currentState == SuperstructureState.ALGAE_L3) {
+				newState = SuperstructureState.ALGAE_BARGE;
+			} else if (currentState == SuperstructureState.ALGAE_BARGE) {
+				newState = SuperstructureState.ALGAE_GROUND;
 			}
 		} else {
-			if (currentState == SuperstructureState.State.ALGAE_BARGE) {
-				newState = SuperstructureState.State.ALGAE_L3;
-			} else if (currentState == SuperstructureState.State.ALGAE_L3) {
-				newState = SuperstructureState.State.ALGAE_L2;
-			} else if (currentState == SuperstructureState.State.ALGAE_L2) {
-				newState = SuperstructureState.State.ALGAE_PROCESSOR;
-			} else if (currentState == SuperstructureState.State.ALGAE_PROCESSOR) {
-				newState = SuperstructureState.State.ALGAE_GROUND;
-			} else if (currentState == SuperstructureState.State.ALGAE_GROUND) {
-				newState = SuperstructureState.State.ALGAE_BARGE;
+			if (currentState == SuperstructureState.ALGAE_BARGE) {
+				newState = SuperstructureState.ALGAE_L3;
+			} else if (currentState == SuperstructureState.ALGAE_L3) {
+				newState = SuperstructureState.ALGAE_L2;
+			} else if (currentState == SuperstructureState.ALGAE_L2) {
+				newState = SuperstructureState.ALGAE_PROCESSOR;
+			} else if (currentState == SuperstructureState.ALGAE_PROCESSOR) {
+				newState = SuperstructureState.ALGAE_GROUND;
+			} else if (currentState == SuperstructureState.ALGAE_GROUND) {
+				newState = SuperstructureState.ALGAE_BARGE;
 			}
 		}
 

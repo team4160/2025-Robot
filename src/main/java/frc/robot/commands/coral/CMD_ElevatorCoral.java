@@ -24,23 +24,23 @@ public class CMD_ElevatorCoral extends Command {
 	@Override
 	public void initialize() {
 		SuperstructureState.State currentState = superstructure.getCurrentSuperstructureState();
-		SuperstructureState.State newState = SuperstructureState.State.L1_SCORING;
+		SuperstructureState.State newState = SuperstructureState.L1_SCORING;
 
 		if (isMovingUp) {
-			if (currentState == SuperstructureState.State.L1_SCORING) {
-				newState = SuperstructureState.State.L2_SCORING;
-			} else if (currentState == SuperstructureState.State.L2_SCORING) {
-				newState = SuperstructureState.State.L3_SCORING;
-			} else if (currentState == SuperstructureState.State.L3_SCORING) {
-				newState = SuperstructureState.State.L4_SCORING;
+			if (currentState == SuperstructureState.L1_SCORING) {
+				newState = SuperstructureState.L2_SCORING;
+			} else if (currentState == SuperstructureState.L2_SCORING) {
+				newState = SuperstructureState.L3_SCORING;
+			} else if (currentState == SuperstructureState.L3_SCORING) {
+				newState = SuperstructureState.L4_SCORING;
 			}
 		} else {
-			if (currentState == SuperstructureState.State.L4_SCORING) {
-				newState = SuperstructureState.State.L3_SCORING;
-			} else if (currentState == SuperstructureState.State.L3_SCORING) {
-				newState = SuperstructureState.State.L2_SCORING;
-			} else if (currentState == SuperstructureState.State.L2_SCORING) {
-				newState = SuperstructureState.State.L1_SCORING;
+			if (currentState == SuperstructureState.L4_SCORING) {
+				newState = SuperstructureState.L3_SCORING;
+			} else if (currentState == SuperstructureState.L3_SCORING) {
+				newState = SuperstructureState.L2_SCORING;
+			} else if (currentState == SuperstructureState.L2_SCORING) {
+				newState = SuperstructureState.L1_SCORING;
 			}
 		}
 

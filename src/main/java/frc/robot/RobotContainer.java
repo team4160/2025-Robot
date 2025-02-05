@@ -127,13 +127,13 @@ public class RobotContainer {
 				.b()
 				.onTrue(
 						new SequentialCommandGroup(
-								new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE),
-								new CMD_IntakeWheel(intake, SuperstructureState.State.IDLE.getSpeed())));
+								new CMD_Superstructure(superstructure, SuperstructureState.IDLE),
+								new CMD_IntakeWheel(intake, SuperstructureState.IDLE.getSpeed())));
 
 		// Climbing
 		operatorController
 				.rightBumper()
-				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.State.CLIMB));
+				.onTrue(new CMD_Elevator(elevator, led, SuperstructureState.));
 	}
 
 	public Command getAutonomousCommand() {

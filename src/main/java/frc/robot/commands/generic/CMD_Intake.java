@@ -18,9 +18,9 @@ public class CMD_Intake extends SequentialCommandGroup {
 
 		addCommands(
 				// Move to Coral Station state
-				new CMD_Superstructure(superstructure, SuperstructureState.State.CORAL_STATION),
+				new CMD_Superstructure(superstructure, SuperstructureState.CORAL_STATION));
 
 				// TODO: Auto idle intake after coral is sensed by the sensor
-				new CMD_Superstructure(superstructure, SuperstructureState.State.IDLE));
+				//new CMD_Superstructure(superstructure, SuperstructureState.IDLE));
 	}
 }
