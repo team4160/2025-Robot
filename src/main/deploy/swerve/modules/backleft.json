@@ -1,25 +1,25 @@
 {
   "location": {
-    "front": -10.375,
-    "left": 10.375
+    "front": -12.5,
+    "left": 12.5
   },
   "drive": {
     "type": "krakenx60",
-    "id": 3,
-    "canbus": "canivore"
+    "id": 5,
+    "canbus": null
   },
   "inverted": {
     "drive": true,
     "angle": true
   },
   "angle": {
-    "type": "sparkmax_neo",
-    "id": 4,
-    "canbus": "canivore"
+    "type": "falcon",
+    "id": 6,
+    "canbus": null
   },
   "encoder": {
-    "type": "canandmag",
-    "id": 0,
+    "type": "canandmag_can",
+    "id": 3,
     "canbus": null
   },
   "absoluteEncoderInverted": true
