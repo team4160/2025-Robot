@@ -9,7 +9,6 @@ package frc.robot.intake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.superstructure.SuperstructureState;
-import org.littletonrobotics.junction.Logger;
 
 public class SUB_Intake extends SubsystemBase {
 	private final IO_IntakeBase io;
@@ -24,7 +23,6 @@ public class SUB_Intake extends SubsystemBase {
 	public void periodic() {
 		io.setArmAngle(localState.getDeg());
 		io.updateInputs(inputs);
-		Logger.processInputs("Intake", inputs);
 	}
 
 	public void updateLocalState(SuperstructureState.State newLocalState) {

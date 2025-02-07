@@ -50,8 +50,6 @@ public class IO_VisionSim implements IO_VisionBase {
 		properties.setAvgLatencyMs(35);
 		properties.setLatencyStdDevMs(5);
 
-		NetworkTableInstance instance = NetworkTableInstance.getDefault();
-
 		// Initialize cameras with proper NetworkTables entries
 		for (CameraConstants.Camera cam : CameraConstants.Camera.values()) {
 			PhotonCamera camera = new PhotonCamera(NetworkTableInstance.getDefault(), cam.name);

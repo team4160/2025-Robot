@@ -10,26 +10,17 @@ package frc.robot.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 
 public class SUB_Vision extends SubsystemBase {
 	private final IO_VisionBase io;
-	private final VisionInputsAutoLogged inputs = new VisionInputsAutoLogged();
 
 	public SUB_Vision(IO_VisionBase io) {
 		this.io = io;
 	}
 
 	@Override
-	public void periodic() {
-
-		// Update inputs
-		io.updateInputs(inputs);
-
-		// Process inputs
-		Logger.processInputs("Vision", inputs);
-	}
+	public void periodic() {}
 
 	// This will be called by the Swerve Drive subsystem to update the estimated pose.
 	public void updatePoseEstimation(Pose2d currentPose) {
@@ -38,9 +29,5 @@ public class SUB_Vision extends SubsystemBase {
 
 	public Optional<EstimatedRobotPose> getEstimatedGlobalPose() {
 		return io.getEstimatedGlobalPose();
-	}
-
-	public boolean hasTargets() {
-		return inputs.hasLeftTarget || inputs.hasRightTarget || inputs.hasBackLeftTarget;
 	}
 }

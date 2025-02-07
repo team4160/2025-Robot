@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -152,8 +151,6 @@ public class IO_VisionReal implements IO_VisionBase {
 			if (result.getTargets().size() == 1) {
 				PhotonTrackedTarget target = result.getBestTarget();
 				if (target.getPoseAmbiguity() > CameraConstants.MAXIMUM_AMBIGUITY) {
-					Logger.recordOutput(
-							"Vision/" + cam.name + "/RejectedAmbiguity", target.getPoseAmbiguity());
 					continue;
 				}
 			}
@@ -169,17 +166,12 @@ public class IO_VisionReal implements IO_VisionBase {
 				EstimatedRobotPose estimate = poseResult.get();
 				updateEstimationStdDevs(cam, poseResult, result.getTargets());
 				cameraEstimates.put(cam, estimate);
-
-				Logger.recordOutput("Vision/" + cam.name + "/EstimatedPose", estimate.estimatedPose);
-				Logger.recordOutput("Vision/" + cam.name + "/TimestampSeconds", estimate.timestampSeconds);
-				Logger.recordOutput("Vision/" + cam.name + "/TagCount", estimate.targetsUsed.size());
 			}
 		}
 
 		if (!cameraEstimates.isEmpty()) {
 			EstimatedRobotPose combinedPose = combineEstimates(cameraEstimates);
 			lastEstimatedPose = Optional.of(combinedPose);
-			Logger.recordOutput("Vision/CombinedEstimatedPose", combinedPose.estimatedPose);
 		}
 	}
 

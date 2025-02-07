@@ -9,7 +9,6 @@ package frc.robot.elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.superstructure.SuperstructureState;
-import org.littletonrobotics.junction.Logger;
 
 public class SUB_Elevator extends SubsystemBase {
 	private final IO_ElevatorBase io;
@@ -24,7 +23,6 @@ public class SUB_Elevator extends SubsystemBase {
 	public void periodic() {
 		io.setPositionM(localState.getHeightM());
 		io.updateInputs(inputs);
-		Logger.processInputs("Elevator", inputs);
 	}
 
 	public void updateLocalState(SuperstructureState.State newLocalState) {

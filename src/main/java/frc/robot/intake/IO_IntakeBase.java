@@ -7,14 +7,9 @@
 
 package frc.robot.intake;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 public interface IO_IntakeBase {
 
-	@AutoLog
-	public static class IntakeInputs implements LoggableInputs {
+	public static class IntakeInputs {
 
 		public double armAngleDegrees = 0.0;
 		public double armMotorCurrent = 0.0;
@@ -24,30 +19,6 @@ public interface IO_IntakeBase {
 		public boolean toggleSensor = false;
 		public double distanceSensorCM = 0.0;
 		public double internalPIDSetpoint = 0.0;
-
-		@Override
-		public void toLog(LogTable table) {
-			table.put("ArmAngleDegrees", armAngleDegrees);
-			table.put("ArmMotorVoltage", armMotorVoltage);
-			table.put("ArmMotorCurrent", armMotorCurrent);
-			table.put("wheelMotorCurrent", wheelMotorCurrent);
-			table.put("wheelRPM", wheelRPM);
-			table.put("toggleSensor", toggleSensor);
-			table.put("distanceSensorCM", distanceSensorCM);
-			table.put("internalPIDSetpoint", internalPIDSetpoint);
-		}
-
-		@Override
-		public void fromLog(LogTable table) {
-			armAngleDegrees = table.get("ArmAngleDegrees", armAngleDegrees);
-			armMotorVoltage = table.get("armMotorVoltage", armMotorVoltage);
-			armMotorCurrent = table.get("ArmMotorCurrent", armMotorCurrent);
-			wheelMotorCurrent = table.get("wheelMotorCurrent", wheelMotorCurrent);
-			wheelRPM = table.get("wheelRPM", wheelRPM);
-			toggleSensor = table.get("toggleSensor", toggleSensor);
-			distanceSensorCM = table.get("distanceSensorCM", distanceSensorCM);
-			internalPIDSetpoint = table.get("internalPIDSetpoint", internalPIDSetpoint);
-		}
 	}
 
 	/** Updates the set of loggable inputs. */

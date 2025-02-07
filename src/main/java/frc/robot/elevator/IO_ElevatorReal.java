@@ -23,8 +23,8 @@ public class IO_ElevatorReal implements IO_ElevatorBase {
 	private final MotionMagicVoltage motorRequest;
 
 	public IO_ElevatorReal() {
-		leftMotor_10 = new TalonFX(10, "canivore");
-		rightMotor_9 = new TalonFX(9, "canivore");
+		leftMotor_10 = new TalonFX(10);
+		rightMotor_9 = new TalonFX(9);
 		var motorConfigs = new TalonFXConfiguration();
 
 		/*

@@ -7,58 +7,49 @@
 
 package frc.robot.util;
 
-import com.ctre.phoenix.led.CANdle;
-import com.ctre.phoenix.led.CANdle.LEDStripType;
-import com.ctre.phoenix.led.CANdleConfiguration;
-import com.ctre.phoenix.led.StrobeAnimation;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.AddressableLEDBufferView;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.superstructure.SuperstructureState;
 
 public class SUB_Led extends SubsystemBase {
-	private CANdle candle;
-	private static final int LED_COUNT = 300;
-	private static final int DEFAULT_ANIMATION_SLOT = 0;
+	private static final int LED_COUNT = 30;
+	// private static final int LED_COUNT = 30 * 2;
+	private static final Distance LedSpacing = Meters.of(1 / 30.0);
+	private final AddressableLED led;
+	private final AddressableLEDBuffer ledBuffer;
+	private final AddressableLEDBufferView viewl;
+	private final AddressableLEDBufferView viewr;
+	private final LEDPattern rainbow =
+			LEDPattern.rainbow(255, 128).scrollAtAbsoluteSpeed(MetersPerSecond.of(0.5), LedSpacing);
 	private SuperstructureState.State localState = SuperstructureState.IDLE;
 
 	public SUB_Led() {
-		candle = new CANdle(11, "canivore");
-		CANdleConfiguration config = new CANdleConfiguration();
-		config.stripType = LEDStripType.RGB;
-		config.brightnessScalar = 1.0;
-		candle.configAllSettings(config);
-		setFullStripColor(255, 0, 0); // Default red
+		led = new AddressableLED(9);
+		led.setBitTiming(369, 769, 769, 369); // timings for WS2813
+		led.setLength(LED_COUNT);
+		ledBuffer = new AddressableLEDBuffer(LED_COUNT);
+		viewl = ledBuffer.createView(0, LED_COUNT / 2 - 1);
+		viewr = ledBuffer.createView(LED_COUNT / 2, LED_COUNT - 1).reversed();
+
+		led.start();
 	}
 
 	@Override
-	public void periodic() {}
-
-	private void setFullStripColor(int r, int g, int b) {
-		candle.clearAnimation(DEFAULT_ANIMATION_SLOT);
-		candle.setLEDs(r, g, b, 0, 0, LED_COUNT);
+	public void periodic() {
+		rainbow.applyTo(viewl);
+		rainbow.applyTo(viewr);
+		led.setData(ledBuffer);
 	}
 
 	public void updateLocalState(SuperstructureState.State newLocalState) {
 		localState = newLocalState;
-
-		if (localState == SuperstructureState.IDLE) {
-			setFullStripColor(255, 0, 0);
-		} else if (localState == SuperstructureState.L1_SCORING) {
-			setFullStripColor(255, 0, 0);
-		} else if (localState == SuperstructureState.L2_SCORING) {
-			setFullStripColor(245, 179, 66);
-		} else if (localState == SuperstructureState.L3_SCORING) {
-			setFullStripColor(255, 255, 0);
-		} else if (localState == SuperstructureState.L4_SCORING) {
-			setFullStripColor(0, 255, 0);
-		} else if (localState == SuperstructureState.CORAL_STATION) {
-			setFullStripColor(0, 0, 255);
-		} else if (localState == SuperstructureState.CLIMB) {
-			candle.clearAnimation(DEFAULT_ANIMATION_SLOT);
-			candle.animate(
-					new StrobeAnimation(240, 10, 180, 0, 98.0 / 256.0, LED_COUNT), DEFAULT_ANIMATION_SLOT);
-		} else {
-			setFullStripColor(255, 0, 0);
-		}
 	}
 
 	public SuperstructureState.State getCurrentLocalState() {

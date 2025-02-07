@@ -12,7 +12,6 @@ import frc.robot.elevator.SUB_Elevator;
 import frc.robot.intake.SUB_Intake;
 import frc.robot.superstructure.SuperstructureState.State;
 import frc.robot.util.SUB_Led;
-import org.littletonrobotics.junction.Logger;
 
 public class SUB_Superstructure extends SubsystemBase {
 	private SuperstructureState.State currentSuperstructureState = SuperstructureState.IDLE;
@@ -31,7 +30,6 @@ public class SUB_Superstructure extends SubsystemBase {
 		elevator.updateLocalState(currentSuperstructureState);
 		intake.updateLocalState(currentSuperstructureState);
 		led.updateLocalState(currentSuperstructureState);
-		Logger.recordOutput("Superstructure State", currentSuperstructureState.toString());
 	}
 
 	public State getCurrentStateWithNewWheelSpeed(double newSpeed) {

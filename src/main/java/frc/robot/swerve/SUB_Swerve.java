@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.CameraConstants;
 import frc.robot.constants.RobotConstants;
 import frc.robot.vision.SUB_Vision;
-import org.littletonrobotics.junction.Logger;
 import swervelib.SwerveController;
 import swervelib.parser.SwerveDriveConfiguration;
 
@@ -64,10 +63,6 @@ public class SUB_Swerve extends SubsystemBase {
 			io.addVisionMeasurement(
 					vision.getEstimatedGlobalPose().get().estimatedPose.toPose2d(),
 					vision.getEstimatedGlobalPose().get().timestampSeconds);
-
-			// Record estimated pose output
-			Logger.recordOutput(
-					"Vision/CurrentEstimatedPose", vision.getEstimatedGlobalPose().get().estimatedPose);
 		}
 
 		// Convert Pose2d to Pose3d for camera position transformation
@@ -83,16 +78,8 @@ public class SUB_Swerve extends SubsystemBase {
 									CameraConstants.CAMERA_POSITIONS[i].getRotation()));
 		}
 
-		// Record camera positions in global coordinate system
-		// In AScope set camera positions to cone object, and the pointy end is where the camera is
-		// looking at
-		// If you want to calibrate the postion set camera positions to transform object instead
-		Logger.recordOutput("CameraPositions", globalCameraPositions);
-
 		// Update inputs
 		io.updateInputs(inputs);
-
-		Logger.processInputs("Swerve", inputs);
 	}
 
 	/**

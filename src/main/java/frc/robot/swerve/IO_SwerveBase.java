@@ -16,15 +16,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
 import swervelib.SwerveController;
 import swervelib.parser.SwerveDriveConfiguration;
 
 public interface IO_SwerveBase {
-	@AutoLog
-	public static class SwerveInputs implements LoggableInputs {
+
+	public static class SwerveInputs {
 		// Robot pose and orientation
 		public Pose2d robotPose = new Pose2d();
 		public Rotation2d gyroYaw = new Rotation2d();
@@ -41,32 +38,6 @@ public interface IO_SwerveBase {
 		// Driving parameters
 		public boolean isFieldRelative = true;
 		public boolean isOpenLoop = false;
-
-		@Override
-		public void toLog(LogTable table) {
-			table.put("RobotPose", robotPose);
-			table.put("GyroYaw", gyroYaw);
-			table.put("GyroPitch", gyroPitch);
-			table.put("ModuleStates", moduleStates);
-			table.put("ModulePositions", modulePositions);
-			table.put("FieldSpeeds", fieldSpeeds);
-			table.put("RobotSpeeds", robotSpeeds);
-			table.put("IsFieldRelative", isFieldRelative);
-			table.put("IsOpenLoop", isOpenLoop);
-		}
-
-		@Override
-		public void fromLog(LogTable table) {
-			robotPose = table.get("RobotPose", robotPose);
-			gyroYaw = table.get("GyroYaw", gyroYaw);
-			gyroPitch = table.get("GyroPitch", gyroPitch);
-			moduleStates = table.get("ModuleStates", moduleStates);
-			modulePositions = table.get("ModulePositions", modulePositions);
-			fieldSpeeds = table.get("FieldSpeeds", fieldSpeeds);
-			robotSpeeds = table.get("RobotSpeeds", robotSpeeds);
-			isFieldRelative = table.get("IsFieldRelative", isFieldRelative);
-			isOpenLoop = table.get("IsOpenLoop", isOpenLoop);
-		}
 	}
 
 	/** Updates the set of loggable inputs. */

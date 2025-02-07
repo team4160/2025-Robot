@@ -7,14 +7,9 @@
 
 package frc.robot.elevator;
 
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.LogTable;
-import org.littletonrobotics.junction.inputs.LoggableInputs;
-
 public interface IO_ElevatorBase {
 
-	@AutoLog
-	public static class ElevatorInputs implements LoggableInputs {
+	public static class ElevatorInputs {
 
 		public double heightM = 0.0;
 		public double velocityMPS = 0.0;
@@ -29,34 +24,6 @@ public interface IO_ElevatorBase {
 
 		public double leftMotorPower = 0.0;
 		public double rightMotorPower = 0.0;
-
-		@Override
-		public void toLog(LogTable table) {
-			table.put("heightM", heightM);
-			table.put("velocityMPS", velocityMPS);
-			table.put("accelerationMPS2", accelerationMPS2);
-			table.put("setpointM", setpointM);
-			table.put("leftMotorVoltage", leftMotorVoltage);
-			table.put("rightMotorVoltage", rightMotorVoltage);
-			table.put("leftMotorCurrent", leftMotorCurrent);
-			table.put("rightMotorCurrent", rightMotorCurrent);
-			table.put("leftMotorPower", leftMotorPower);
-			table.put("rightMotorPower", rightMotorPower);
-		}
-
-		@Override
-		public void fromLog(LogTable table) {
-			heightM = table.get("heightM", heightM);
-			velocityMPS = table.get("velocityMPS", velocityMPS);
-			accelerationMPS2 = table.get("accelerationMPS2", accelerationMPS2);
-			setpointM = table.get("setpointM", setpointM);
-			leftMotorVoltage = table.get("leftMotorVoltage", leftMotorVoltage);
-			rightMotorVoltage = table.get("rightMotorVoltage", rightMotorVoltage);
-			leftMotorCurrent = table.get("leftMotorCurrent", leftMotorCurrent);
-			rightMotorCurrent = table.get("rightMotorCurrent", rightMotorCurrent);
-			leftMotorPower = table.get("leftMotorPower", leftMotorPower);
-			rightMotorPower = table.get("rightMotorPower", rightMotorPower);
-		}
 	}
 
 	/** Updates the set of loggable inputs. */

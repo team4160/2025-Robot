@@ -19,7 +19,6 @@ import frc.robot.commands.coral.CMD_IntakeCoral;
 import frc.robot.commands.drive.CMD_Drive;
 import frc.robot.commands.generic.CMD_Elevator;
 import frc.robot.commands.generic.CMD_Superstructure;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.InputConstants;
 import frc.robot.elevator.IO_ElevatorReal;
 import frc.robot.elevator.SUB_Elevator;
@@ -32,7 +31,6 @@ import frc.robot.swerve.SUB_Swerve;
 import frc.robot.util.SUB_Led;
 import frc.robot.vision.IO_VisionReal;
 import frc.robot.vision.SUB_Vision;
-import frc.robot.webserver.WebServer;
 import java.io.File;
 
 public class RobotContainer {
@@ -48,7 +46,6 @@ public class RobotContainer {
 	private SUB_Elevator elevator;
 	private SUB_Superstructure superstructure;
 	private SUB_Led led;
-	private WebServer webServer;
 
 	public RobotContainer() {
 		// Initialize Controllers
@@ -59,7 +56,6 @@ public class RobotContainer {
 
 		// Configure Robot Functionality
 		configureDefaultCommands();
-		configureWebserverCommands();
 		configurePathPlannerCommands();
 		configureButtonBindings();
 	}
@@ -71,7 +67,6 @@ public class RobotContainer {
 	}
 
 	private void initializeSubsystems() {
-		webServer = new WebServer();
 		vision = new SUB_Vision(new IO_VisionReal());
 		swerve =
 				new SUB_Swerve(
@@ -84,13 +79,6 @@ public class RobotContainer {
 
 	private void configureDefaultCommands() {
 		swerve.setDefaultCommand(new CMD_Drive(swerve, driverController, globalInputMap));
-	}
-
-	private void configureWebserverCommands() {
-		webServer.registerCommand("T1", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_LEFT));
-		webServer.registerCommand("T2", swerve.driveToPose(FieldConstants.BLUE_TOP_TOP_RIGHT));
-		webServer.registerCommand("TL1", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_BOTTOM));
-		webServer.registerCommand("TL2", swerve.driveToPose(FieldConstants.BLUE_TOP_LEFT_TOP));
 	}
 
 	private void configurePathPlannerCommands() {
