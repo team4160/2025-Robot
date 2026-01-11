@@ -9,8 +9,9 @@ public class L1 extends Command{
     private final Elevator elevator;
     private final Arm arm;
 
-    private double elevatorHeight = 19.15;
-    private double armAngle = 0.5798;
+    //values are the same as GoToIntake (L1 wasnt used so another intake button without auto wheels is nice)
+    private double elevatorHeight = 0;
+    private double armAngle = 0.472;
     
     public L1(Elevator elevator, Arm arm) {
         this.elevator = elevator;

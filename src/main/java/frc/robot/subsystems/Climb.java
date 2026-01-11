@@ -6,17 +6,21 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import au.grapplerobotics.LaserCan;
+import edu.wpi.first.util.datalog.IntegerLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Utils;
 import frc.robot.Constants.ClimbConstants;
+import frc.robot.Utils;
 
 public class Climb extends SubsystemBase {
     private final TalonFX climbMotor = new TalonFX(ClimbConstants.CLIMB_MOTOR_ID);
     private final TalonFXConfiguration climbConfig = new TalonFXConfiguration();
-    
+    private final LaserCan laserCan = new LaserCan(1);
+    private final IntegerLogEntry laserLog = new IntegerLogEntry(DataLogManager.getLog(), "/climb/laserHeight");
 
     public Climb() {
         climbConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -58,9 +62,15 @@ public class Climb extends SubsystemBase {
         return climbMotor;
     }
 
+    public int getHeight() {
+        return laserCan.getMeasurement().distance_mm;
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Climb position", climbMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Climb Current", climbMotor.getStatorCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Climb Height", laserCan.getMeasurement().distance_mm);
+        DataLogManager.getLog().appendInteger(0, 0, 0);
     }
 }

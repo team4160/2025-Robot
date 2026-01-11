@@ -50,7 +50,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.util.datalog.DoubleArrayLogEntry;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -208,6 +210,8 @@ public class SwerveDrive implements AutoCloseable
    */
   private       double              maxChassisSpeedMPS;
 
+  private DoubleArrayLogEntry odometerLog;
+
   /**
    * Creates a new swerve drivebase subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
    * {@link SwerveDrive#setRawModuleStates} method. The {@link SwerveDrive#drive} method incorporates kinematics-- it
@@ -301,6 +305,7 @@ public class SwerveDrive implements AutoCloseable
     {
       SmartDashboard.putData("Field", field);
     }
+    odometerLog = new DoubleArrayLogEntry(DataLogManager.getLog(),"odometer");
 
     if (SwerveDriveTelemetry.verbosity.ordinal() >= TelemetryVerbosity.INFO.ordinal())
     {
@@ -1246,6 +1251,12 @@ public class SwerveDrive implements AutoCloseable
     }
     odometryLock.unlock();
     SwerveDriveTelemetry.endOdomCycle();
+
+    odometerLog.append(odoToDoubleArray(getPose()));
+  }
+
+  private double[] odoToDoubleArray(Pose2d pose) {
+    return new double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
   }
 
   /**

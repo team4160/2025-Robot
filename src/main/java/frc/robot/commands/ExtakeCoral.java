@@ -38,5 +38,6 @@ public class ExtakeCoral extends Command{
     public void end(boolean interrupted)
     {
         intake.stopIntake();
+        timer.restart();
     }
 }

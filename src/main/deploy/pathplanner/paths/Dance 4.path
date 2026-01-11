@@ -1,0 +1,107 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.989,
+        "y": 4.0249999999999995
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.9597500000000003,
+        "y": 5.253499999999999
+      },
+      "isLocked": false,
+      "linkedName": "Dance0"
+    },
+    {
+      "anchor": {
+        "x": 3.24675,
+        "y": 4.0249999999999995
+      },
+      "prevControl": {
+        "x": 3.2576127709734446,
+        "y": 5.263355890972697
+      },
+      "nextControl": {
+        "x": 3.237,
+        "y": 2.913499999999999
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.3875,
+        "y": 4.063999999999999
+      },
+      "prevControl": {
+        "x": 4.3972500000000005,
+        "y": 2.90375
+      },
+      "nextControl": {
+        "x": 4.377996133878199,
+        "y": 5.194960068494348
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.70375,
+        "y": 4.13225
+      },
+      "prevControl": {
+        "x": 5.666307456156708,
+        "y": 5.068313596082309
+      },
+      "nextControl": {
+        "x": 5.7525,
+        "y": 2.913499999999999
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.99075,
+        "y": 4.09325
+      },
+      "prevControl": {
+        "x": 6.99075,
+        "y": 2.7867499999999996
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Dance 3"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.9901639344262161,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 4.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Robot Dance",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 85.03025927188972
+  },
+  "useDefaultConstraints": true
+}

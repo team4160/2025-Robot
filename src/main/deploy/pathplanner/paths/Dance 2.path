@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.073872950819672,
-        "y": 2.1069672131147548
+        "x": 4.5044999999993784,
+        "y": 5.058499999996925
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.205461023515647,
-        "y": 1.4482418754558566
+        "x": 7.019999999997005,
+        "y": 2.5429999999993074
       },
       "isLocked": false,
-      "linkedName": "Intake"
+      "linkedName": "Dance1"
     },
     {
       "anchor": {
-        "x": 2.7982500000000003,
-        "y": 4.395499999999999
+        "x": 4.5044999999993784,
+        "y": 1.0902499999993085
       },
       "prevControl": {
-        "x": 2.230543597720947,
-        "y": 5.805712526479301
+        "x": 2.0377499999970046,
+        "y": 3.5082499999993075
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "secondL2"
+      "linkedName": "Dance2"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.9710219310792
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Robot Dance",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -143.9077039363303
+    "rotation": -90.9710219310792
   },
   "useDefaultConstraints": true
 }

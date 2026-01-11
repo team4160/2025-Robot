@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot
   public Robot()
   {
     instance = this;
+    CanBridge.runTCP();
   }
 
   public static Robot getInstance()

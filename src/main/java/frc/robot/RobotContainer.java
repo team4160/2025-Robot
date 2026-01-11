@@ -14,13 +14,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -33,6 +33,7 @@ import frc.robot.commands.L1;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.ZeroClimber;
+import frc.robot.commands.AutoClimb;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Elevator;
@@ -63,10 +64,9 @@ public class RobotContainer
   private static final String autoSimple = "Simple";
   private static final String autoTaxi = "Taxi";
   private static final String autoLTaxi = "Long Taxi";
-  private static final String autoLeft = "Left_reef_prep_score";
-  private static final String autoCenter = "Middle_reef_prep_score";
-  private static final String autoRight = "Right_reef_prep_score";
+  private static final String threePieceRight = "3 Piece Right";
   private static final String threePiece = "3 piece";
+  private static final String dance = "Robot Dance";
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -135,16 +135,18 @@ public class RobotContainer
     NamedCommands.registerCommand("L3", new L3(elevator, arm));
     NamedCommands.registerCommand("GoToIntake", new GoToIntake(elevator,arm));
     NamedCommands.registerCommand("ExtakeCoral", new ExtakeCoral(intake));
-    NamedCommands.registerCommand("IntakeCoral", new IntakeCoral(intake));
+    NamedCommands.registerCommand("IntakeCoral", new IntakeCoral(intake, operatorXbox, driverXbox));
     autoChooser.setDefaultOption(autoSimple, autoSimple);
     autoChooser.addOption(autoTaxi, autoTaxi);
     autoChooser.addOption(autoLTaxi, autoLTaxi);
-    autoChooser.addOption(autoLeft, autoLeft);
-    autoChooser.addOption(autoCenter, autoCenter);
-    autoChooser.addOption(autoRight, autoRight);
+    autoChooser.addOption(threePieceRight, threePieceRight);
     autoChooser.addOption(threePiece, threePiece);
+    autoChooser.addOption(dance, dance);
     SmartDashboard.putData("auto", autoChooser);
     RobotModeTriggers.teleop().onTrue(new ZeroClimber(climb));
+
+    DataLogManager.start();
+    DriverStation.startDataLog(DataLogManager.getLog());
   }
 
   /**
@@ -164,7 +166,7 @@ public class RobotContainer
     Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
     Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
         driveDirectAngleKeyboard);
-
+    
     if (RobotBase.isSimulation())
     {
       drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
@@ -233,6 +235,7 @@ public class RobotContainer
       // driverXbox.rightBumper().onTrue(Commands.none());
       // driverXbox.b().onTrue(new AbsoluteDrive(drivebase, null, null, null, null));
       climb.setDefaultCommand(climb.manualClimb(driverXbox));
+      driverXbox.leftBumper().onTrue(new AutoClimb(climb));
       elevator.setDefaultCommand(elevator.manualElevator(operatorXbox));
       arm.setDefaultCommand(arm.manualArm(operatorXbox));
       intake.setDefaultCommand(intake.manualIntake(operatorXbox));
@@ -242,6 +245,8 @@ public class RobotContainer
       operatorXbox.a().whileTrue(new L1(elevator, arm));
       operatorXbox.x().whileTrue(new L2(elevator, arm));
       operatorXbox.y().whileTrue(new L3(elevator, arm));
+      operatorXbox.povUp().onTrue(new ExtakeCoral(intake));
+      operatorXbox.povDown().onTrue(new IntakeCoral(intake, operatorXbox, driverXbox));
       // operatorXbox.start().onTrue( CommandScheduler.getInstance().cancelAll());
     }
 
